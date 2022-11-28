@@ -27,6 +27,10 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  file_picker: ^4.3.0
+  stack: ^0.2.1
+  path_provider: ^2.0.8
+  toast: ^0.2.9
   flutter:
     sdk: flutter
 
