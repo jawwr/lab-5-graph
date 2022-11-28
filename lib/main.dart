@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:lab_5/widgets/graph.dart';
 import 'package:toast/toast.dart';
