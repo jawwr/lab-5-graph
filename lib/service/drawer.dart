@@ -1,10 +1,12 @@
 import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class DrawHorizontalLine extends CustomPainter {
   final Point<double> startPoint;
   final Point<double> finishPoint;
+
   DrawHorizontalLine(this.startPoint, this.finishPoint);
 
   final Paint _paint = Paint()
@@ -12,6 +14,7 @@ class DrawHorizontalLine extends CustomPainter {
     ..strokeWidth = 2
     ..strokeCap = StrokeCap.round
     ..style = PaintingStyle.stroke;
+
   @override
   void paint(Canvas canvas, Size size) {
     if (startPoint != finishPoint) {

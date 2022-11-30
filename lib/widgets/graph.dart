@@ -83,12 +83,14 @@ class _GraphWidget extends State<GraphWidget> {
           .toList();
 
       for (var edge in node.incidentEdges) {
-        _edges.insert(0, DistanceLineWidget(
-            edge: edge,
-            graph: graph,
-            callback: callback,
-            to: map[edge.to]!,
-            from: map[edge.from]!));
+        _edges.insert(
+            0,
+            DistanceLineWidget(
+                edge: edge,
+                graph: graph,
+                callback: callback,
+                to: map[edge.to]!,
+                from: map[edge.from]!));
       }
     });
   }

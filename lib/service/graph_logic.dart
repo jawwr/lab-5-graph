@@ -2,23 +2,29 @@ class Graph<num> {
   late final bool isOriented;
   int _edgeLenght = 0;
   List<Node<num>> _nodes = [];
+
   Graph(int nodesCount, this.isOriented) {
     _nodes = Iterable.generate(nodesCount).map((e) => Node<num>(e)).toList();
   }
+
   Graph.def(this.isOriented);
+
   int get lenght => _nodes.length;
+
   int get edgeLenght => _edgeLenght;
+
   Iterable<Node<num>> get nodes => _nodes;
+
   Iterable<Edge<num>> get edges => edgeLenght > 0
       ? isOriented
-      ? _nodes
-      .map((x) => x.incidentEdges)
-      .reduce((x, element) => x.toList() + element.toList())
-      : _nodes.map((x) => x.incidentEdges).reduce((x, element) =>
-  x
-      .where((t) => element.every((element) => element != t))
-      .toList() +
-      element.toList())
+          ? _nodes
+              .map((x) => x.incidentEdges)
+              .reduce((x, element) => x.toList() + element.toList())
+          : _nodes.map((x) => x.incidentEdges).reduce((x, element) =>
+              x
+                  .where((t) => element.every((element) => element != t))
+                  .toList() +
+              element.toList())
       : [];
 
   void addNode(value) {
@@ -102,15 +108,21 @@ class Node<num> {
   late final List<Edge<num>> _edges;
   late final num _number;
   int _id = 0;
+
   Node(this._number) {
     _id = _counter;
     _counter++;
     _edges = [];
   }
+
   num get number => _number;
+
   int get id => _id;
+
   Iterable<Node<num>> get incidentNodes => _edges.map((e) => e.otherNode(this));
+
   Iterable<Edge<num>> get incidentEdges => _edges.map((e) => e);
+
   num? getValueLinkNode(Node<num> node) {
     var edge = incidentEdges.where((x) => x.isIncident(node));
     if (edge.isNotEmpty) {
@@ -121,6 +133,7 @@ class Node<num> {
   }
 
   static int _counter = 1;
+
   static Tuple<Edge<num>, Edge<num>> connect<num>(
       Node<num> node1, Node<num> node2, Graph<num> graph, num value) {
     if (!graph.nodes.contains(node1) || !graph.nodes.contains(node2)) {
@@ -150,8 +163,10 @@ class Edge<num> {
   late final Node<num> from;
   late final Node<num> to;
   late final num value;
+
   @override
   int get hashCode => to.hashCode;
+
   Edge(this.from, this.to, num value) {
     if (value as int > maxValue) {
       throw Exception("Incorect value of Node");
@@ -193,9 +208,9 @@ class Tuple<T1, T2> {
   }
 
   Map<String, dynamic> toJson() => {
-    'item1': item1,
-    'item2': item2,
-  };
+        'item1': item1,
+        'item2': item2,
+      };
   late T1 item1;
   late T2 item2;
 }
