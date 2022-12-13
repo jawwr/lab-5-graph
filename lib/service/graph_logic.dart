@@ -140,7 +140,7 @@ class Node<num> {
       throw FormatException("incorect node");
     }
     var edge1 = Edge<num>(node1, node2, value);
-    var edge2 = Edge(node2, node1, value);
+    var edge2 = Edge<num>(node2, node1, value);
     return Tuple(edge1, edge2);
   }
 
