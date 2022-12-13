@@ -10,6 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:lab_5/DTO/graph_dto.dart';
 import 'package:lab_5/service/converter.dart';
 import 'package:lab_5/widgets/subtitle.dart';
 import 'package:toast/toast.dart';
@@ -122,15 +123,17 @@ class _GraphWidget extends State<GraphWidget> {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
     if (kIsWeb) {
       if (result != null) {
-        try {
+        var isJson = result.files[0].name.contains(".json");
+        if (isJson) {
           var fileBytes = result.files.first.bytes;
           var text = utf8.decode(fileBytes!);
-          debugPrint(text);
+          var graphDto = graphDTOFromJson(text);
           setState(() {
-            var tuple = text.convertToGraph(false);
+            // var tuple = text.convertToGraph(false);
+            var tuple = text.convertDtoToGraph(graphDto, false);
             _nodes.clear();
             _edges.clear();
-            graph = tuple.item1;
+            graph = tuple.item1;// tuple.item1;
             map = tuple.item2;
             for (var node in graph.nodes) {
               _nodes.add(NodeWidget(
@@ -149,7 +152,36 @@ class _GraphWidget extends State<GraphWidget> {
                   from: map[edge.from]!));
             }
           });
-        } finally {}
+        } else {
+          try {
+            var fileBytes = result.files.first.bytes;
+            var text = utf8.decode(fileBytes!);
+            debugPrint(text);
+            setState(() {
+              var tuple = text.convertToGraph(false);
+              _nodes.clear();
+              _edges.clear();
+              graph = tuple.item1;
+              map = tuple.item2;
+              for (var node in graph.nodes) {
+                _nodes.add(NodeWidget(
+                  map[node]!,
+                  graph: graph,
+                  node: node,
+                  addEdge: _addEdge,
+                  changeLoc: _changeLoc,
+                ));
+              }
+              for (var edge in graph.edges) {
+                _edges.add(DistanceLineWidget(
+                    edge: edge,
+                    graph: graph,
+                    to: map[edge.to]!,
+                    from: map[edge.from]!));
+              }
+            });
+          } catch (e) {}
+        }
       }
     } else {
       if (result != null) {
