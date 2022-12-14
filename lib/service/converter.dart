@@ -45,14 +45,9 @@ extension Converter on String {
       //   var res = int.tryParse(row[j]);
       //   if (res != null && res > 0) {
       graph.connect(
-          Node(edges[i].idFrom!), Node(edges[i].idTo!), edges[i].value!);
+          graph[edges[i].idFrom!], graph[edges[i].idTo!], edges[i].value!);
       // }
       // }
-    }
-    for (var node in points) {
-      if(graph[node.id!] == null){
-        graph.addNode(node.id);
-      }
     }
     // var points = arrays[1].trim().split('\n');
 

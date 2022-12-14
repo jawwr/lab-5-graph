@@ -30,6 +30,7 @@ class Graph<num> {
   void addNode(value) {
     if (value is num) {
       _nodes.add(Node(value));
+
     }
     if (value is Node<num>) {
       _nodes.add(value);
@@ -136,9 +137,9 @@ class Node<num> {
 
   static Tuple<Edge<num>, Edge<num>> connect<num>(
       Node<num> node1, Node<num> node2, Graph<num> graph, num value) {
-    // if (!graph.nodes.contains(node1) || !graph.nodes.contains(node2)) {
-    //   throw FormatException("incorect node");
-    // }
+    if (!graph.nodes.contains(node1) || !graph.nodes.contains(node2)) {
+      throw FormatException("incorect node");
+    }
     var edge1 = Edge<num>(node1, node2, value);
     var edge2 = Edge<num>(node2, node1, value);
     return Tuple(edge1, edge2);
