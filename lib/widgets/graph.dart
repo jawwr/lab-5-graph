@@ -2,9 +2,11 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:file_saver/file_saver.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -115,8 +117,10 @@ class _GraphWidget extends State<GraphWidget> {
   }
 
   _saveFile() async {
-    //var dio = Dio();
-    //var response = await dio.download('url-to-downloadable', 'path-to-save-to');
+    var dto = convertGraphToDTO(graph, map);
+    var json = graphDTOToJson(dto);
+    Uint8List uint8list = Uint8List.fromList(json.codeUnits);
+    await FileSaver.instance.saveFile("graph.json", uint8list, "json");
   }
 
   _uploadFile() async {
@@ -124,80 +128,37 @@ class _GraphWidget extends State<GraphWidget> {
     if (kIsWeb) {
       if (result != null) {
         var isJson = result.files[0].name.contains(".json");
+        Tuple<Graph<num>, Map<Node<num>, Point>> tuple;
+        var fileBytes = result.files.first.bytes;
+        var text = utf8.decode(fileBytes!);
         if (isJson) {
-          var fileBytes = result.files.first.bytes;
-          var text = utf8.decode(fileBytes!);
           var graphDto = graphDTOFromJson(text);
-          setState(() {
-            // var tuple = text.convertToGraph(false);
-            var tuple = text.convertDtoToGraph(graphDto, false);
-            _nodes.clear();
-            _edges.clear();
-            graph = tuple.item1;// tuple.item1;
-            map = tuple.item2;
-            for (var node in graph.nodes) {
-              _nodes.add(NodeWidget(
-                map[node]!,
-                graph: graph,
-                node: node,
-                addEdge: _addEdge,
-                changeLoc: _changeLoc,
-              ));
-            }
-            for (var edge in graph.edges) {
-              _edges.add(DistanceLineWidget(
-                  edge: edge,
-                  graph: graph,
-                  to: map[edge.to]!,
-                  from: map[edge.from]!));
-            }
-          });
+          tuple = text.convertDtoToGraph(graphDto, false);
         } else {
-          try {
-            var fileBytes = result.files.first.bytes;
-            var text = utf8.decode(fileBytes!);
-            debugPrint(text);
-            setState(() {
-              var tuple = text.convertToGraph(false);
-              _nodes.clear();
-              _edges.clear();
-              graph = tuple.item1;
-              map = tuple.item2;
-              for (var node in graph.nodes) {
-                _nodes.add(NodeWidget(
-                  map[node]!,
-                  graph: graph,
-                  node: node,
-                  addEdge: _addEdge,
-                  changeLoc: _changeLoc,
-                ));
-              }
-              for (var edge in graph.edges) {
-                _edges.add(DistanceLineWidget(
-                    edge: edge,
-                    graph: graph,
-                    to: map[edge.to]!,
-                    from: map[edge.from]!));
-              }
-            });
-          } catch (e) {}
+          tuple = text.convertToGraph(false);
         }
-      }
-    } else {
-      if (result != null) {
-        try {
-          File file = File(result.files.single.path!);
-          if (file.path.contains(".txt") || file.path.contains(".docx")) {
-            var text = await file.readAsString();
-            setState(() {
-              var tuple = text.convertToGraph(false);
-              graph = tuple.item1;
-              map = tuple.item2;
-            });
-          } else if (file.path.contains(".json")) {
-            //TODO maybe
+        setState(() {
+          _nodes.clear();
+          _edges.clear();
+          graph = tuple.item1;
+          map = tuple.item2;
+          for (var node in graph.nodes) {
+            _nodes.add(NodeWidget(
+              map[node]!,
+              graph: graph,
+              node: node,
+              addEdge: _addEdge,
+              changeLoc: _changeLoc,
+            ));
           }
-        } finally {}
+          for (var edge in graph.edges) {
+            _edges.add(DistanceLineWidget(
+                edge: edge,
+                graph: graph,
+                to: map[edge.to]!,
+                from: map[edge.from]!));
+          }
+        });
       }
     }
   }

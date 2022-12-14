@@ -38,8 +38,8 @@ extension Converter on String {
     var edges = dto.edges!;
     var graph = Graph<num>(points.length, isOriented);
     for (int i = 0; i < edges.length; i++) {
-      graph.connect(graph[edges[i].idFrom!],
-          graph[edges[i].idTo!], edges[i].value!);
+      graph.connect(
+          graph[edges[i].idFrom!], graph[edges[i].idTo!], edges[i].value!);
     }
 
     Map<Node<num>, Point> map = {};
@@ -54,4 +54,31 @@ extension Converter on String {
     }
     return Tuple(graph, map);
   }
+
+
+}
+
+GraphDTO convertGraphToDTO(Graph graph, Map<Node<num>, Point> nodePos) {
+  GraphDTO dto = GraphDTO();
+  List<NodeDTO> nodesDTo = [];
+  for (var node in graph.nodes) {
+    nodesDTo.add(NodeDTO(
+      id: node.id,
+      xCord: nodePos[node]!.x.floor(),
+      yCord: nodePos[node]!.y.floor(),
+    ));
+  }
+  dto.nodes = nodesDTo;
+
+  List<EdgeDTO> edgesDTO = [];
+  for (var edge in graph.edges) {
+    edgesDTO.add(EdgeDTO(
+      idFrom: edge.from.id,
+      idTo: edge.to.id,
+      value: edge.value,
+    ));
+  }
+  dto.edges = edgesDTO;
+
+  return dto;
 }
