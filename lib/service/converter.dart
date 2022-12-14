@@ -32,33 +32,23 @@ extension Converter on String {
     return Tuple(graph, map);
   }
 
-  Tuple<Graph<num>, Map<Node<num>, Point>> convertDtoToGraph(GraphDTO dto,
-      bool isOriented) {
-    // var arrays = split(';');
-    // var matrix = arrays[0].split('\n');
+  Tuple<Graph<num>, Map<Node<num>, Point>> convertDtoToGraph(
+      GraphDTO dto, bool isOriented) {
     var points = dto.nodes!;
     var edges = dto.edges!;
     var graph = Graph<num>(points.length, isOriented);
     for (int i = 0; i < edges.length; i++) {
-      // var row = matrix[i].trim().split(' ');
-      // for (int j = 0; j < row.length; j++) {
-      //   var res = int.tryParse(row[j]);
-      //   if (res != null && res > 0) {
-      graph.connect(
-          graph[edges[i].idFrom!], graph[edges[i].idTo!], edges[i].value!);
-      // }
-      // }
+      graph.connect(graph[edges[i].idFrom!],
+          graph[edges[i].idTo!], edges[i].value!);
     }
-    // var points = arrays[1].trim().split('\n');
 
     Map<Node<num>, Point> map = {};
     for (int i = 0; i < points.length; i++) {
-      // var info = points[i].trim().split(' ');
       var res = points[i].id;
       var x = points[i].xCord;
       var y = points[i].yCord;
       if (res != null && x != null && y != null) {
-        var a  = graph[res];
+        var a = graph[res];
         map[graph[res]] = Point(x, y);
       }
     }

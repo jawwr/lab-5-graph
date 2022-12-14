@@ -1,0 +1,56 @@
+{
+  "nodes": [
+    {
+      "id": 0,
+      "xCord": 100,
+      "yCord": 100
+    },
+    {
+      "id": 1,
+      "xCord": 200,
+      "yCord": 300
+    },
+    {
+      "id": 2,
+      "xCord": 400,
+      "yCord": 200
+    },
+    {
+      "id": 3,
+      "xCord": 100,
+      "yCord": 500
+    },
+    {
+      "id": 4,
+      "xCord": 700,
+      "yCord": 200
+    },
+    {
+      "id": 5,
+      "xCord": 300,
+      "yCord": 100
+    }
+  ],
+  "edges": [
+    {
+      "idFrom": 2,
+      "idTo": 4,
+      "value": 6
+    },
+    {
+      "idFrom": 3,
+      "idTo": 5,
+      "value": 9
+    },
+    {
+      "idFrom": 2,
+      "idTo": 0,
+      "value": 7
+    },
+    {
+      "idFrom": 3,
+      "idTo": 0,
+      "value": 6
+    }
+  ]
+}
