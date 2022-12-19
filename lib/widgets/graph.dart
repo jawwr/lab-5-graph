@@ -185,7 +185,7 @@ class _GraphWidget extends State<GraphWidget> {
     return text;
   }
 
-  _changeNodeState(node, ObjectState state) {
+  _changeNodeState(Node node, ObjectState state) {
     setState(() {
       _nodes
           .where((node2) => node2.node.id == node.id)
@@ -282,23 +282,69 @@ class _GraphWidget extends State<GraphWidget> {
   }
 
   _calculateMinWay(Node<num> startNode, Node<num> endNode) async {
-    List<List<int>> path = [];
+    List<int> path = [];
     List<List<int>> graphDest = _getEdges();
+    if (graphDest[startNode.id][endNode.id] != _maxInt) {
+      path.add(startNode.id);
+      path.add(endNode.id);
+    }
     setState(() {
       _isRun = true;
     });
     var size = graph.lenght;
     for (int k = 0; k < size; k++) {
+      var temp = List.of(graphDest);
       for (int i = 0; i < size; i++) {
+        var node1 = graph[i];
+        _changeNodeState(node1, ObjectState.select);
+        _printSubs("Просмотр путей из точки ${node1.id}");
+
         for (int j = 0; j < size; j++) {
+          var node2 = graph[j];
+          if (i != j) {
+            _changeNodeState(node2, ObjectState.passed);
+
+            _printSubs(
+                "Путь из ${node1.id} в ${node2.id} равен ${graphDest[i][j]}");
+          }
           if (graphDest[i][k] != _maxInt &&
               graphDest[k][j] != _maxInt &&
               graphDest[i][j] > graphDest[i][k] + graphDest[k][j]) {
             graphDest[i][j] = graphDest[i][k] + graphDest[k][j];
+
+            if (i == startNode.id && j == endNode.id) {
+              path.remove(j);
+
+              path.add(i);
+              path.add(k);
+              path.add(j);
+            }
+            _printSubs(
+                "Путь из ${i} в ${j}, равный ${graphDest[i][j]}, больше чем через $i $k $j");
+          }
+          await Future.delayed(const Duration(milliseconds: 500));
+          if (i != j) {
+            _changeNodeState(node2, ObjectState.idle);
           }
         }
+        _changeNodeState(node1, ObjectState.idle);
+      }
+      if (temp == graphDest) {
+        break;
       }
     }
+
+    var pathStr = "";
+    for (var nodePath in path) {
+      var node = graph[nodePath];
+      _changeNodeState(node, ObjectState.select);
+      _printSubs("Кратчайший путь лежит течез точку ${node.id}");
+      pathStr += nodePath == path.first ? "$nodePath" : " -> $nodePath";
+      await Future.delayed(const Duration(milliseconds: 500));
+    }
+
+    _printSubs(
+        "Кратчайший путь ${pathStr} равен ${graphDest[startNode.id][endNode.id]}");
   }
 
   List<List<int>> _getEdges() {
@@ -445,7 +491,7 @@ class _GraphWidget extends State<GraphWidget> {
             openSubtitles: () => _openSubtitles(),
             saveFile: () => _saveFile(),
             uploadFile: () => _uploadFile(),
-            minWay: () => _calculateMinWay(Node(1), Node(2)),
+            minWay: () => _calculateMinWay(Node(0), Node(3)),
           ),
         ),
       ],
