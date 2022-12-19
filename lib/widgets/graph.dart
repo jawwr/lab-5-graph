@@ -109,7 +109,7 @@ class _GraphWidget extends State<GraphWidget> {
   }
 
   _openSubtitles() {
-    _showAlertDialog("Subtitles are turn on");
+    _showAlertDialog("Субтитры включены");
     setState(() {
       _needSubtitles = !_needSubtitles;
     });
@@ -172,7 +172,7 @@ class _GraphWidget extends State<GraphWidget> {
       action.call(node);
       NodeWidget.selectedNodes.clear();
     } else {
-      _showAlertDialog("Warning: You don't select node.");
+      _showAlertDialog("Warning: Не выбрано узлов");
     }
   }
 
@@ -225,7 +225,7 @@ class _GraphWidget extends State<GraphWidget> {
       if (!visited.contains(node)) {
         visited.add(node);
         _changeNodeState(node, ObjectState.passed);
-        _printSubs("Visiting node number ${node.id}");
+        _printSubs("Узел номер ${node.id}");
         path.add(node);
         await Future.delayed(const Duration(milliseconds: 500));
         _changeNodeState(node, ObjectState.passed);
@@ -233,13 +233,13 @@ class _GraphWidget extends State<GraphWidget> {
         for (var incidentNode in node.incidentNodes) {
           stack.addLast(incidentNode);
         }
-        _printSubs("Stack have ${_toString(stack)}");
+        _printSubs("В стэке: ${_toString(stack)}");
         await Future.delayed(const Duration(milliseconds: 750));
       } else {
         await Future.delayed(const Duration(milliseconds: 500));
       }
     }
-    _printSubs("finally path ${_toString(path)}");
+    _printSubs("Конечный путь: ${_toString(path)}");
     await Future.delayed(const Duration(milliseconds: 1000));
     _printSubs("");
     _changeAllNode(ObjectState.idle);
@@ -257,7 +257,7 @@ class _GraphWidget extends State<GraphWidget> {
       if (!visited.contains(node)) {
         visited.add(node);
         _changeNodeState(node, ObjectState.passed);
-        _printSubs("Visiting node number ${node.id}");
+        _printSubs("Узел номер ${node.id}");
         path.add(node);
         await Future.delayed(const Duration(milliseconds: 500));
         _changeNodeState(node, ObjectState.passed);
@@ -265,13 +265,13 @@ class _GraphWidget extends State<GraphWidget> {
         for (var incidentNode in node.incidentNodes) {
           queue.add(incidentNode);
         }
-        _printSubs("Queue have ${_toString(queue)}");
+        _printSubs("В очереди: ${_toString(queue)}");
         await Future.delayed(const Duration(milliseconds: 750));
       } else {
         await Future.delayed(const Duration(milliseconds: 500));
       }
     }
-    _printSubs("finally path ${_toString(path)}");
+    _printSubs("Конечный путь ${_toString(path)}");
     await Future.delayed(const Duration(milliseconds: 1000));
     _printSubs("");
     _changeAllNode(ObjectState.idle);
@@ -389,14 +389,14 @@ class _GraphWidget extends State<GraphWidget> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Input value of distance'),
+          title: Text('Введите расстояние между выбранными узлами'),
           content: new Row(
             children: <Widget>[
               new Expanded(
                 child: new TextField(
                   autofocus: true,
                   decoration: new InputDecoration(
-                    labelText: 'Enter num',
+                    labelText: 'Введите число',
                   ),
                   onChanged: (value) {
                     try {
@@ -458,7 +458,7 @@ class _GraphWidget extends State<GraphWidget> {
             from: map[edge.from]!));
       });
     } else {
-      _showAlertDialog("this is edge is exist, please delete and make new");
+      _showAlertDialog("Эти узлы уже соединены");
       setState(() {
         for (var node in _nodes) {
           node.stateNow.changeState(ObjectState.idle);
