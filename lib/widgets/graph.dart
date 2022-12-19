@@ -291,12 +291,11 @@ class _GraphWidget extends State<GraphWidget> {
     for (int k = 0; k < size; k++) {
       for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
-          //       if (graph[i, k] != -1
-          //       && graph[k, j] != -1
-          //       && graph[i, j] > graph[i, k] + graph[k, j]) {
-          //         graph[i
-          // , j] = graph[i, k] + graph[k, j];
-          // }
+          if (graphDest[i][k] != _maxInt &&
+              graphDest[k][j] != _maxInt &&
+              graphDest[i][j] > graphDest[i][k] + graphDest[k][j]) {
+            graphDest[i][j] = graphDest[i][k] + graphDest[k][j];
+          }
         }
       }
     }
@@ -310,7 +309,7 @@ class _GraphWidget extends State<GraphWidget> {
       graphEdges.add(list);
 
       for (int j = 0; j < graph.lenght; j++) {
-        if(nodes[0].from.id == j){
+        if (nodes[0].from.id == j) {
           graphEdges[i].add(0);
           continue;
         }
@@ -322,9 +321,10 @@ class _GraphWidget extends State<GraphWidget> {
           }
         }
         if (isContains) {
-          graphEdges[i].add(nodes.where((element) => element.to.id == j).first.value as int);
+          graphEdges[i].add(
+              nodes.where((element) => element.to.id == j).first.value as int);
         } else {
-          graphEdges[i].add(-1);
+          graphEdges[i].add(_maxInt);
         }
       }
     }
@@ -468,3 +468,5 @@ class _GraphWidget extends State<GraphWidget> {
     return int.parse(value);
   }
 }
+
+const int _maxInt = 999999;
