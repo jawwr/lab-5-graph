@@ -281,6 +281,41 @@ class _GraphWidget extends State<GraphWidget> {
     _changeToken(false);
   }
 
+  _calculateMinWay(Node<num> startNode, Node<num> endNode) async {
+    List<List<int>> path = [];
+    List<List<int>> graphDest = _getEdges();
+    setState(() {
+      _isRun = true;
+    });
+    var size = graph.lenght;
+    for (int k = 0; k < size; k++) {
+      for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+          //       if (graph[i, k] != -1
+          //       && graph[k, j] != -1
+          //       && graph[i, j] > graph[i, k] + graph[k, j]) {
+          //         graph[i
+          // , j] = graph[i, k] + graph[k, j];
+          // }
+        }
+      }
+    }
+  }
+
+  List<List<int>> _getEdges() {
+    List<List<int>> graphEdges = [];
+    for (int i = 0; i < graph.lenght; i++) {
+      var nodes = graph.nodes.toList()[i].incidentEdges;
+      List<int> list = [];
+      graphEdges.add(list);
+      for (int j = 0; j < nodes.length; j++) {
+        graphEdges[i].add(nodes.toList()[j].value as int);
+      }
+    }
+
+    return graphEdges;
+  }
+
   Future<int> _showDialog() async {
     dynamic resultValue = -1;
     await showDialog(
@@ -394,6 +429,7 @@ class _GraphWidget extends State<GraphWidget> {
             openSubtitles: () => _openSubtitles(),
             saveFile: () => _saveFile(),
             uploadFile: () => _uploadFile(),
+            minWay: () => _calculateMinWay(Node(1), Node(2)),
           ),
         ),
       ],

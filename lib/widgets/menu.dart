@@ -7,15 +7,17 @@ class Menu extends StatefulWidget {
   final Function() saveFile;
   final Function() uploadFile;
   final Function() openSubtitles;
+  final Function() minWay;
 
-  const Menu({
-    Key? key,
-    required this.depthSearch,
-    required this.breadthSearch,
-    required this.saveFile,
-    required this.uploadFile,
-    required this.openSubtitles,
-  }) : super(key: key);
+  const Menu(
+      {Key? key,
+      required this.depthSearch,
+      required this.breadthSearch,
+      required this.saveFile,
+      required this.uploadFile,
+      required this.openSubtitles,
+      required this.minWay})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _Menu();
@@ -25,7 +27,7 @@ class _Menu extends State<Menu> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 400,
+      height: 500,
       child: Column(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -37,6 +39,10 @@ class _Menu extends State<Menu> {
           _MenuIcon(
             func: widget.breadthSearch,
             icon: Icons.swap_horiz,
+          ),
+          _MenuIcon(
+            func: widget.minWay,
+            icon: Icons.map,
           ),
           _MenuIcon(
             func: widget.uploadFile,
@@ -66,6 +72,7 @@ class _MenuIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: const EdgeInsets.only(top: 10),
         child: Material(
       clipBehavior: Clip.hardEdge,
       color: Colors.teal,
