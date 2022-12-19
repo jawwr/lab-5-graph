@@ -44,7 +44,7 @@ class _GraphWidget extends State<GraphWidget> {
   _onTapDown(BuildContext context, TapDownDetails details) {
     final RenderBox? box = context.findRenderObject() as RenderBox?;
     final Offset localOffset = box!.globalToLocal(details.globalPosition);
-    var node = Node<num>(0);
+    var node = Node<num>(graph.lenght);
     posx = localOffset.dx;
     posy = localOffset.dy;
     var point = Point(posx, posy);
