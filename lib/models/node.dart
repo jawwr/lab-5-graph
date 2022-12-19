@@ -56,14 +56,14 @@ class _NodeWidget extends AnimatedWidgetBaseState<NodeWidget> {
   _selectNode(Node<num> node) => {
         setState(() {
           if (_state == ObjectState.idle) {
-            if (NodeWidget.selectedNodes.isNotEmpty) {
-              widget.addEdge.call(NodeWidget.selectedNodes.first, widget.node);
-              NodeWidget.selectedNodes.clear();
-              _state = ObjectState.idle;
-            } else {
+            // if (NodeWidget.selectedNodes.isNotEmpty) {
+            //   widget.addEdge.call(NodeWidget.selectedNodes.first, widget.node);
+            //   NodeWidget.selectedNodes.clear();
+            //   _state = ObjectState.idle;
+            // } else {
               _state = ObjectState.select;
               NodeWidget.selectedNodes.add(node);
-            }
+            // }
           } else {
             _state = ObjectState.idle;
             NodeWidget.selectedNodes.clear();

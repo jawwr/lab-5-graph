@@ -1,6 +1,5 @@
 import 'dart:collection';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui';
@@ -249,9 +248,7 @@ class _GraphWidget extends State<GraphWidget> {
 
   _breadthSearch(Node<num> startNode) async {
     List<Node<num>> path = [];
-    setState(() {
-      _isRun = true;
-    });
+    _changeToken(true);
     var visited = HashSet<Node<num>>();
     var queue = Queue<Node<num>>();
     queue.add(startNode);
@@ -288,9 +285,7 @@ class _GraphWidget extends State<GraphWidget> {
       path.add(startNode.id);
       path.add(endNode.id);
     }
-    setState(() {
-      _isRun = true;
-    });
+    _changeToken(true);
     var size = graph.lenght;
     for (int k = 0; k < size; k++) {
       var temp = List.of(graphDest);
@@ -300,6 +295,7 @@ class _GraphWidget extends State<GraphWidget> {
         _printSubs("Просмотр путей из точки ${node1.id}");
 
         for (int j = 0; j < size; j++) {
+          var temp = graphDest[i][j];
           var node2 = graph[j];
           if (i != j) {
             _changeNodeState(node2, ObjectState.passed);
@@ -310,7 +306,12 @@ class _GraphWidget extends State<GraphWidget> {
           if (graphDest[i][k] != _maxInt &&
               graphDest[k][j] != _maxInt &&
               graphDest[i][j] > graphDest[i][k] + graphDest[k][j]) {
+
             graphDest[i][j] = graphDest[i][k] + graphDest[k][j];
+
+            if(j == endNode.id){
+              temp = min(temp, graphDest[i][j]);
+            }
 
             if (i == startNode.id && j == endNode.id) {
               path.remove(j);
@@ -322,7 +323,7 @@ class _GraphWidget extends State<GraphWidget> {
             _printSubs(
                 "Путь из ${i} в ${j}, равный ${graphDest[i][j]}, больше чем через $i $k $j");
           }
-          await Future.delayed(const Duration(milliseconds: 500));
+          // await Future.delayed(const Duration(milliseconds: 100));
           if (i != j) {
             _changeNodeState(node2, ObjectState.idle);
           }
@@ -345,6 +346,9 @@ class _GraphWidget extends State<GraphWidget> {
 
     _printSubs(
         "Кратчайший путь ${pathStr} равен ${graphDest[startNode.id][endNode.id]}");
+    await Future.delayed(const Duration(milliseconds: 1000));
+    _changeAllNode(ObjectState.idle);
+    _changeToken(false);
   }
 
   List<List<int>> _getEdges() {
@@ -464,6 +468,19 @@ class _GraphWidget extends State<GraphWidget> {
     }
   }
 
+  _selectNode(Function(Node<num>, Node<num>) action) {
+    var selectNodes =
+        _nodes.where((x) => x.stateNow.state == ObjectState.select).toList();
+    if (selectNodes.length == 2 && !_isRun) {
+      action.call(selectNodes[0].node, selectNodes[1].node);
+      NodeWidget.selectedNodes.clear();
+    } else if (selectNodes.length > 2) {
+      _showAlertDialog("Warning: Выбрано больше, чем два узла");
+    } else {
+      _showAlertDialog("Warning: Не выбрано узлов");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -491,7 +508,8 @@ class _GraphWidget extends State<GraphWidget> {
             openSubtitles: () => _openSubtitles(),
             saveFile: () => _saveFile(),
             uploadFile: () => _uploadFile(),
-            minWay: () => _calculateMinWay(Node(0), Node(3)),
+            minWay: () => _selectNode(_calculateMinWay),
+            addEdge: () => _selectNode(_addEdge),
           ),
         ),
       ],
