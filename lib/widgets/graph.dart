@@ -305,11 +305,27 @@ class _GraphWidget extends State<GraphWidget> {
   List<List<int>> _getEdges() {
     List<List<int>> graphEdges = [];
     for (int i = 0; i < graph.lenght; i++) {
-      var nodes = graph.nodes.toList()[i].incidentEdges;
+      var nodes = graph.nodes.toList()[i].incidentEdges.toList();
       List<int> list = [];
       graphEdges.add(list);
-      for (int j = 0; j < nodes.length; j++) {
-        graphEdges[i].add(nodes.toList()[j].value as int);
+
+      for (int j = 0; j < graph.lenght; j++) {
+        if(nodes[0].from.id == j){
+          graphEdges[i].add(0);
+          continue;
+        }
+        var isContains = false;
+        for (var edge in nodes) {
+          if (edge.to.id == j) {
+            isContains = true;
+            break;
+          }
+        }
+        if (isContains) {
+          graphEdges[i].add(nodes.where((element) => element.to.id == j).first.value as int);
+        } else {
+          graphEdges[i].add(-1);
+        }
       }
     }
 
