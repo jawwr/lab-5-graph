@@ -10,6 +10,7 @@ class Menu extends StatefulWidget {
   final Function() minWay;
   final Function() addEdge;
   final Function() maxWay;
+  final Function() treeAlg;
 
   const Menu(
       {Key? key,
@@ -20,7 +21,8 @@ class Menu extends StatefulWidget {
       required this.openSubtitles,
       required this.minWay,
       required this.addEdge,
-      required this.maxWay})
+      required this.maxWay,
+      required this.treeAlg})
       : super(key: key);
 
   @override
@@ -51,6 +53,10 @@ class _Menu extends State<Menu> {
           _MenuIcon(
             func: widget.maxWay,
             icon: Icons.map_outlined,
+          ),
+          _MenuIcon(
+            func: widget.treeAlg,
+            icon: Icons.forest,
           ),
           _MenuIcon(
             func: widget.minWay,

@@ -551,6 +551,48 @@ class _GraphWidget extends State<GraphWidget> {
     return graphEdges;
   }
 
+  _primsAlgorithms(Node<num> node) async {
+    List<List<int>> graphDest = _getEdges();
+    _changeToken(true);
+
+    List<bool> visited = [];
+
+    for (int i = 0; i < graph.lenght; i++) {
+      visited.add(false);
+    }
+    visited[0] = true;
+
+    int x;
+    int y;
+
+    print("Edge : Weight");
+    var size = graph.lenght;
+    for (int i = 0; i < size - 1; i++) {
+      int min = _maxInt;
+      x = 0;
+      y = 0;
+
+      for (int i = 0; i < size; i++) {
+        if (visited[i]) {
+          for (int j = 0; j < size; j++) {
+            if (!visited[j] && graphDest[i][j] != 0) {
+              if (min > graphDest[i][j]) {
+                min = graphDest[i][j];
+                x = i;
+                y = j;
+              }
+            }
+          }
+        }
+      }
+      print("$x - $y : ${graphDest[x][y]}");
+      visited[y] = true;
+    }
+
+    _changeAllNode(ObjectState.idle);
+    _changeToken(false);
+  }
+
   Future<int> _showDialog() async {
     dynamic resultValue = -1;
     await showDialog(
@@ -679,6 +721,7 @@ class _GraphWidget extends State<GraphWidget> {
             uploadFile: () => _uploadFile(),
             minWay: () => _selectNode(_dijkstra),
             maxWay: () => _selectNode(_findMaxStream),
+            treeAlg: () => _graphBypass(_primsAlgorithms),
             addEdge: () => _selectNode(_addEdge),
           ),
         ),
