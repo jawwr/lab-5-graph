@@ -488,6 +488,7 @@ class _GraphWidget extends State<GraphWidget> {
     }
 
     _printSubs("Путь лежит через $pathStr, равен $result");
+    await Future.delayed(const Duration(milliseconds: 3000));
   }
 
   List<int> _findPath(
@@ -771,8 +772,8 @@ class _GraphWidget extends State<GraphWidget> {
         ..._nodes,
         ..._edges,
         Positioned(
-          bottom: 50,
-          right: 50,
+          bottom: 25,
+          right: 25,
           child: Menu(
             depthSearch: () => _graphBypass(_depthSearch),
             breadthSearch: () => _graphBypass(_breadthSearch),
