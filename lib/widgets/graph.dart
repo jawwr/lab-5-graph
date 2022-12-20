@@ -410,6 +410,7 @@ class _GraphWidget extends State<GraphWidget> {
 
     _changeAllNode(ObjectState.idle);
     _changeToken(false);
+    _printSubs("");
   }
 
   _findMaxStream(Node<num> startNode, Node<num> endNode) async {
@@ -472,6 +473,7 @@ class _GraphWidget extends State<GraphWidget> {
 
     _changeAllNode(ObjectState.idle);
     _changeToken(false);
+    _printSubs("");
   }
 
   _showMinPath(List<int> ver, int endNodeId, int result) async {
@@ -581,7 +583,8 @@ class _GraphWidget extends State<GraphWidget> {
             if (i == j) {
               continue;
             }
-            _changeNodeState(graph[i], ObjectState.passed);
+            _printSubs("Проверка расстония $i -> $j");
+            _changeNodeState(graph[i], ObjectState.select);
             _changeNodeState(graph[j], ObjectState.passed);
             if (!visited[j] && graphDest[i][j] != 0) {
               if (min > graphDest[i][j]) {
@@ -600,8 +603,8 @@ class _GraphWidget extends State<GraphWidget> {
       _changeNodeState(graph[x], ObjectState.select);
       _changeNodeState(graph[y], ObjectState.select);
 
-      _printSubs("$x -> $y равно ${graphDest[x][y]}");
-      await Future.delayed(const Duration(milliseconds: 1000));
+      _printSubs("Оптимальный вариант $x -> $y");
+      await Future.delayed(const Duration(milliseconds: 1500));
       var node1 = _nodes.where((element) => element.node == graph[x]).first;
       var node2 = _nodes.where((element) => element.node == graph[y]).first;
       tree.add(Tuple(node1, node2));
@@ -615,6 +618,7 @@ class _GraphWidget extends State<GraphWidget> {
     setState(() {
       _edges.clear();
     });
+    _printSubs("Построение остовного дерева");
     await Future.delayed(const Duration(milliseconds: 1000));
 
     for (var tuple in tree) {
@@ -622,6 +626,8 @@ class _GraphWidget extends State<GraphWidget> {
       var node2 = tuple.item2.node;
       var value = graphDest[node1.id][node2.id];
       var edge = graph.connect(node1, node2, value);
+
+      _printSubs("Построение из ${node1.id} в ${node2.id} равный ${value}");
 
       setState(() {
         _edges.add(DistanceLineWidget(
@@ -633,12 +639,14 @@ class _GraphWidget extends State<GraphWidget> {
       await Future.delayed(const Duration(milliseconds: 700));
     }
 
+    await Future.delayed(const Duration(milliseconds: 5000));
+
     _changeAllNode(ObjectState.idle);
     setState(() {
       _edges.clear();
       _edges = edges;
     });
-
+    _printSubs("");
     _changeToken(false);
   }
 
