@@ -412,6 +412,68 @@ class _GraphWidget extends State<GraphWidget> {
     _changeToken(false);
   }
 
+  _findMaxStream(Node<num> startNode, Node<num> endNode) async {
+    _changeAllNode(ObjectState.idle);
+    List<int> maxDistance = [];
+    List<int> visited = [];
+    List<List<int>> graphDest = _getEdges(isMax: true);
+    _changeToken(true);
+
+    int beginIndex = startNode.id;
+
+    int maxIndex;
+    int max;
+    int temp;
+
+    for (int i = 0; i < graphDest.length; i++) {
+      maxDistance.add(-1);
+      visited.add(1);
+    }
+    maxDistance[beginIndex] = 0;
+
+    do {
+      maxIndex = -1;
+      max = -1;
+      for (int i = 0; i < graphDest.length; i++) {
+        // Если вершину ещё не обошли и вес больше max
+        if ((visited[i] == 1) && (maxDistance[i] > max)) {
+          // Переприсваиваем значения
+          max = maxDistance[i];
+          maxIndex = i;
+        }
+      }
+      // Добавляем найденный минимальный вес
+      // к текущему весу вершины
+      // и сравниваем с текущим минимальным весом вершины
+      if (maxIndex != -1) {
+        for (int i = 0; i < graphDest.length; i++) {
+          if (graphDest[maxIndex][i] > 0) {
+            temp = max + graphDest[maxIndex][i];
+            if (temp > maxDistance[i] && visited[i] != 0) {
+              maxDistance[i] = temp;
+            }
+          }
+        }
+        visited[maxIndex] = 0;
+        _printSubs("Узел номер ${graph[maxIndex].id}");
+        _changeNodeState(graph[maxIndex], ObjectState.passed);
+        await Future.delayed(const Duration(milliseconds: 500));
+      }
+    } while (maxIndex > -1);
+
+    List<int> ver = _findPath(
+      beginIndex: beginIndex,
+      endNodeId: endNode.id,
+      minDistance: maxDistance,
+      graph: graphDest,
+    );
+
+    await _showMinPath(ver, endNode.id);
+
+    _changeAllNode(ObjectState.idle);
+    _changeToken(false);
+  }
+
   _showMinPath(List<int> ver, int endNodeId) async {
     var path = ver[0] == endNodeId ? ver.reversed : ver;
     var pathStr = "";
@@ -440,10 +502,9 @@ class _GraphWidget extends State<GraphWidget> {
     while (end != beginIndex) // пока не дошли до начальной вершины
     {
       for (int i = 0; i < graph.length; i++) // просматриваем все вершины
-        if (graph[i][end] != 0) // если связь есть
+        if (graph[i][end] != 0 && graph[i][end] != -_maxInt) // если связь есть
         {
-          int temp = weight -
-              graph[i][end]; // определяем вес пути из предыдущей вершины
+          int temp = weight - graph[i][end]; // определяем вес пути из предыдущей вершины
           if (temp == minDistance[i]) // если вес совпал с рассчитанным
           {
             // значит из этой вершины и был переход
@@ -457,7 +518,7 @@ class _GraphWidget extends State<GraphWidget> {
     return ver;
   }
 
-  List<List<int>> _getEdges() {
+  List<List<int>> _getEdges({bool isMax = false}) {
     List<List<int>> graphEdges = [];
     for (int i = 0; i < graph.lenght; i++) {
       var nodes = graph.nodes.toList()[i].incidentEdges.toList();
@@ -480,7 +541,9 @@ class _GraphWidget extends State<GraphWidget> {
           graphEdges[i].add(
               nodes.where((element) => element.to.id == j).first.value as int);
         } else {
-          graphEdges[i].add(_maxInt);
+          // graphEdges[i].add(isMax ? -_maxInt : _maxInt);
+          var temp = isMax ? -_maxInt : _maxInt;
+          graphEdges[i].add(temp);
         }
       }
     }
@@ -614,7 +677,8 @@ class _GraphWidget extends State<GraphWidget> {
             openSubtitles: () => _openSubtitles(),
             saveFile: () => _saveFile(),
             uploadFile: () => _uploadFile(),
-            minWay: () => _selectNode(/*_calculateMinWay*/ _dijkstra),
+            minWay: () => _selectNode(/*_dijkstra*/ _findMaxStream),
+            //TODO доделать отдельную кнопку
             addEdge: () => _selectNode(_addEdge),
           ),
         ),
