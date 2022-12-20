@@ -357,11 +357,11 @@ class _GraphWidget extends State<GraphWidget> {
     List<List<int>> graphDest = _getEdges();
     _changeToken(true);
 
+    int beginIndex = startNode.id;
+
     int minIndex;
     int min;
     int temp;
-
-    int beginIndex = startNode.id;
 
     for (int i = 0; i < graphDest.length; i++) {
       minDistance.add(10000);
@@ -399,19 +399,51 @@ class _GraphWidget extends State<GraphWidget> {
       }
     } while (minIndex < 10000);
 
+    List<int> ver = _findPath(
+      beginIndex: beginIndex,
+      endNodeId: endNode.id,
+      minDistance: minDistance,
+      graph: graphDest,
+    );
+
+    await _showMinPath(ver, endNode.id);
+
+    _changeAllNode(ObjectState.idle);
+    _changeToken(false);
+  }
+
+  _showMinPath(List<int> ver, int endNodeId) async {
+    var path = ver[0] == endNodeId ? ver.reversed : ver;
+    var pathStr = "";
+    for (var nodePath in path) {
+      var node = graph[nodePath];
+      pathStr += nodePath == path.first ? "${node.id}" : " -> ${node.id}";
+      _printSubs("Кратчайший путь лежит через ${node.id}");
+      _changeNodeState(node, ObjectState.select);
+      await Future.delayed(const Duration(milliseconds: 700));
+    }
+
+    _printSubs("Кратчайший путь лежит через $pathStr");
+  }
+
+  List<int> _findPath(
+      {required int beginIndex,
+      required int endNodeId,
+      required List<int> minDistance,
+      required List<List<int>> graph}) {
     List<int> ver = []; // массив посещенных вершин
-    int end = endNode.id; // индекс конечной вершины = 5 - 1
+    int end = endNodeId; // индекс конечной вершины = 5 - 1
     ver.add(end); // начальный элемент - конечная вершина
     int k = 1; // индекс предыдущей вершины
     int weight = minDistance[end]; // вес конечной вершины
 
     while (end != beginIndex) // пока не дошли до начальной вершины
     {
-      for (int i = 0; i < graphDest.length; i++) // просматриваем все вершины
-        if (graphDest[i][end] != 0) // если связь есть
+      for (int i = 0; i < graph.length; i++) // просматриваем все вершины
+        if (graph[i][end] != 0) // если связь есть
         {
           int temp = weight -
-              graphDest[i][end]; // определяем вес пути из предыдущей вершины
+              graph[i][end]; // определяем вес пути из предыдущей вершины
           if (temp == minDistance[i]) // если вес совпал с рассчитанным
           {
             // значит из этой вершины и был переход
@@ -422,20 +454,7 @@ class _GraphWidget extends State<GraphWidget> {
           }
         }
     }
-
-    var path = ver[0] == endNode.id ? ver.reversed : ver;
-    var pathStr = "";
-    for (var nodePath in path) {
-      var node = graph[nodePath];
-      pathStr += nodePath == path.first ? "${node.id}" : " -> ${node.id}";
-      _printSubs("Кратчайший путь лежит через ${node.id}");
-      _changeNodeState(node, ObjectState.select);
-      await Future.delayed(const Duration(milliseconds: 1000));
-    }
-
-    _printSubs("Кратчайший путь лежит через $pathStr");
-    _changeAllNode(ObjectState.idle);
-    _changeToken(false);
+    return ver;
   }
 
   List<List<int>> _getEdges() {
