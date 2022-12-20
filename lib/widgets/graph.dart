@@ -482,12 +482,12 @@ class _GraphWidget extends State<GraphWidget> {
     for (var nodePath in path) {
       var node = graph[nodePath];
       pathStr += nodePath == path.first ? "${node.id}" : " <-> ${node.id}";
-      _printSubs("Наибольший путь лежит через ${node.id}");
+      _printSubs("Путь лежит через ${node.id}");
       _changeNodeState(node, ObjectState.select);
       await Future.delayed(const Duration(milliseconds: 700));
     }
 
-    _printSubs("Наибольший путь лежит через $pathStr, равен $result");
+    _printSubs("Путь лежит через $pathStr, равен $result");
   }
 
   List<int> _findPath(
@@ -498,7 +498,6 @@ class _GraphWidget extends State<GraphWidget> {
     List<int> ver = []; // массив посещенных вершин
     int end = endNodeId; // индекс конечной вершины = 5 - 1
     ver.add(end); // начальный элемент - конечная вершина
-    int k = 1; // индекс предыдущей вершины
     int weight = minDistance[end]; // вес конечной вершины
 
     while (end != beginIndex) // пока не дошли до начальной вершины
@@ -514,7 +513,6 @@ class _GraphWidget extends State<GraphWidget> {
             weight = temp; // сохраняем новый вес
             end = i; // сохраняем предыдущую вершину
             ver.add(i); // и записываем ее в массив
-            k++;
           }
         }
     }
@@ -553,7 +551,7 @@ class _GraphWidget extends State<GraphWidget> {
     return graphEdges;
   }
 
-  _primsAlgorithms(Node<num> node) async {
+  _primsAlgorithm(Node<num> node) async {
     List<List<int>> graphDest = _getEdges();
     List<Tuple<NodeWidget, NodeWidget>> tree = [];
     var edges = List.of(_edges);
@@ -621,6 +619,21 @@ class _GraphWidget extends State<GraphWidget> {
     _printSubs("Построение остовного дерева");
     await Future.delayed(const Duration(milliseconds: 1000));
 
+    await _buildPath(tree, graphDest);
+
+    await Future.delayed(const Duration(milliseconds: 5000));
+
+    _changeAllNode(ObjectState.idle);
+    setState(() {
+      _edges.clear();
+      _edges = edges;
+    });
+    _printSubs("");
+    _changeToken(false);
+  }
+
+  _buildPath(List<Tuple<NodeWidget, NodeWidget>> tree,
+      List<List<int>> graphDest) async {
     for (var tuple in tree) {
       var node1 = tuple.item1.node;
       var node2 = tuple.item2.node;
@@ -638,16 +651,6 @@ class _GraphWidget extends State<GraphWidget> {
       });
       await Future.delayed(const Duration(milliseconds: 700));
     }
-
-    await Future.delayed(const Duration(milliseconds: 5000));
-
-    _changeAllNode(ObjectState.idle);
-    setState(() {
-      _edges.clear();
-      _edges = edges;
-    });
-    _printSubs("");
-    _changeToken(false);
   }
 
   Future<int> _showDialog() async {
@@ -778,7 +781,7 @@ class _GraphWidget extends State<GraphWidget> {
             uploadFile: () => _uploadFile(),
             minWay: () => _selectNode(_dijkstra),
             maxWay: () => _selectNode(_findMaxStream),
-            treeAlg: () => _graphBypass(_primsAlgorithms),
+            treeAlg: () => _graphBypass(_primsAlgorithm),
             addEdge: () => _selectNode(_addEdge),
           ),
         ),
