@@ -90,19 +90,19 @@ class _MenuIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(top: 10),
+        margin: const EdgeInsets.only(top: 10),
         child: Material(
-      clipBehavior: Clip.hardEdge,
-      color: Colors.teal,
-      borderRadius: BorderRadius.all(Radius.circular(50)),
-      child: IconButton(
-        iconSize: 50,
-        onPressed: func,
-        icon: Icon(icon),
-        splashColor: Colors.transparent,
-        color: Colors.white,
-        highlightColor: Colors.pink,
-      ),
-    ));
+          clipBehavior: Clip.hardEdge,
+          color: Colors.teal,
+          borderRadius: BorderRadius.all(Radius.circular(50)),
+          child: IconButton(
+            iconSize: 50,
+            onPressed: func,
+            icon: Icon(icon),
+            splashColor: Colors.transparent,
+            color: Colors.white,
+            highlightColor: Colors.pink,
+          ),
+        ));
   }
 }

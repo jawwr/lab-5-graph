@@ -30,7 +30,6 @@ class Graph<num> {
   void addNode(value) {
     if (value is num) {
       _nodes.add(Node(value));
-
     }
     if (value is Node<num>) {
       _nodes.add(value);

@@ -54,8 +54,6 @@ extension Converter on String {
     }
     return Tuple(graph, map);
   }
-
-
 }
 
 GraphDTO convertGraphToDTO(Graph graph, Map<Node<num>, Point> nodePos) {

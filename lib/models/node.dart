@@ -61,8 +61,8 @@ class _NodeWidget extends AnimatedWidgetBaseState<NodeWidget> {
             //   NodeWidget.selectedNodes.clear();
             //   _state = ObjectState.idle;
             // } else {
-              _state = ObjectState.select;
-              NodeWidget.selectedNodes.add(node);
+            _state = ObjectState.select;
+            NodeWidget.selectedNodes.add(node);
             // }
           } else {
             _state = ObjectState.idle;
