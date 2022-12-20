@@ -553,6 +553,9 @@ class _GraphWidget extends State<GraphWidget> {
 
   _primsAlgorithms(Node<num> node) async {
     List<List<int>> graphDest = _getEdges();
+    List<Tuple<NodeWidget, NodeWidget>> tree = [];
+    var edges = List.of(_edges);
+
     _changeToken(true);
 
     List<bool> visited = [];
@@ -560,12 +563,12 @@ class _GraphWidget extends State<GraphWidget> {
     for (int i = 0; i < graph.lenght; i++) {
       visited.add(false);
     }
-    visited[0] = true;
+    visited[node.id] = true;
 
     int x;
     int y;
 
-    print("Edge : Weight");
+    debugPrint("Edge : Weight");
     var size = graph.lenght;
     for (int i = 0; i < size - 1; i++) {
       int min = _maxInt;
@@ -575,6 +578,11 @@ class _GraphWidget extends State<GraphWidget> {
       for (int i = 0; i < size; i++) {
         if (visited[i]) {
           for (int j = 0; j < size; j++) {
+            if (i == j) {
+              continue;
+            }
+            _changeNodeState(graph[i], ObjectState.passed);
+            _changeNodeState(graph[j], ObjectState.passed);
             if (!visited[j] && graphDest[i][j] != 0) {
               if (min > graphDest[i][j]) {
                 min = graphDest[i][j];
@@ -582,14 +590,55 @@ class _GraphWidget extends State<GraphWidget> {
                 y = j;
               }
             }
+            await Future.delayed(const Duration(milliseconds: 700));
+            _changeNodeState(graph[i], ObjectState.idle);
+            _changeNodeState(graph[j], ObjectState.idle);
           }
         }
       }
-      print("$x - $y : ${graphDest[x][y]}");
+
+      _changeNodeState(graph[x], ObjectState.select);
+      _changeNodeState(graph[y], ObjectState.select);
+
+      _printSubs("$x -> $y равно ${graphDest[x][y]}");
+      await Future.delayed(const Duration(milliseconds: 1000));
+      var node1 = _nodes.where((element) => element.node == graph[x]).first;
+      var node2 = _nodes.where((element) => element.node == graph[y]).first;
+      tree.add(Tuple(node1, node2));
+
+      debugPrint("$x - $y : ${graphDest[x][y]}");
       visited[y] = true;
+
+      _changeNodeState(graph[x], ObjectState.idle);
+      _changeNodeState(graph[y], ObjectState.idle);
+    }
+    setState(() {
+      _edges.clear();
+    });
+    await Future.delayed(const Duration(milliseconds: 1000));
+
+    for (var tuple in tree) {
+      var node1 = tuple.item1.node;
+      var node2 = tuple.item2.node;
+      var value = graphDest[node1.id][node2.id];
+      var edge = graph.connect(node1, node2, value);
+
+      setState(() {
+        _edges.add(DistanceLineWidget(
+            edge: edge,
+            graph: graph,
+            to: tuple.item2.location,
+            from: tuple.item1.location));
+      });
+      await Future.delayed(const Duration(milliseconds: 700));
     }
 
     _changeAllNode(ObjectState.idle);
+    setState(() {
+      _edges.clear();
+      _edges = edges;
+    });
+
     _changeToken(false);
   }
 
