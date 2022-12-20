@@ -306,10 +306,9 @@ class _GraphWidget extends State<GraphWidget> {
           if (graphDest[i][k] != _maxInt &&
               graphDest[k][j] != _maxInt &&
               graphDest[i][j] > graphDest[i][k] + graphDest[k][j]) {
-
             graphDest[i][j] = graphDest[i][k] + graphDest[k][j];
 
-            if(j == endNode.id){
+            if (j == endNode.id) {
               temp = min(temp, graphDest[i][j]);
             }
 
@@ -323,7 +322,7 @@ class _GraphWidget extends State<GraphWidget> {
             _printSubs(
                 "Путь из ${i} в ${j}, равный ${graphDest[i][j]}, больше чем через $i $k $j");
           }
-          // await Future.delayed(const Duration(milliseconds: 100));
+          await Future.delayed(const Duration(milliseconds: 500));
           if (i != j) {
             _changeNodeState(node2, ObjectState.idle);
           }
@@ -347,6 +346,94 @@ class _GraphWidget extends State<GraphWidget> {
     _printSubs(
         "Кратчайший путь ${pathStr} равен ${graphDest[startNode.id][endNode.id]}");
     await Future.delayed(const Duration(milliseconds: 1000));
+    _changeAllNode(ObjectState.idle);
+    _changeToken(false);
+  }
+
+  _dijkstra(Node<num> startNode, Node<num> endNode) async {
+    _changeAllNode(ObjectState.idle);
+    List<int> minDistance = [];
+    List<int> visited = [];
+    List<List<int>> graphDest = _getEdges();
+    _changeToken(true);
+
+    int minIndex;
+    int min;
+    int temp;
+
+    int beginIndex = startNode.id;
+
+    for (int i = 0; i < graphDest.length; i++) {
+      minDistance.add(10000);
+      visited.add(1);
+    }
+    minDistance[beginIndex] = 0;
+
+    do {
+      minIndex = 10000;
+      min = 10000;
+      for (int i = 0; i < graphDest.length; i++) {
+        // Если вершину ещё не обошли и вес меньше min
+        if ((visited[i] == 1) && (minDistance[i] < min)) {
+          // Переприсваиваем значения
+          min = minDistance[i];
+          minIndex = i;
+        }
+      }
+      // Добавляем найденный минимальный вес
+      // к текущему весу вершины
+      // и сравниваем с текущим минимальным весом вершины
+      if (minIndex != 10000) {
+        for (int i = 0; i < graphDest.length; i++) {
+          if (graphDest[minIndex][i] > 0) {
+            temp = min + graphDest[minIndex][i];
+            if (temp < minDistance[i]) {
+              minDistance[i] = temp;
+            }
+          }
+        }
+        visited[minIndex] = 0;
+        _printSubs("Узел номер ${graph[minIndex].id}");
+        _changeNodeState(graph[minIndex], ObjectState.passed);
+        await Future.delayed(const Duration(milliseconds: 500));
+      }
+    } while (minIndex < 10000);
+
+    List<int> ver = []; // массив посещенных вершин
+    int end = endNode.id; // индекс конечной вершины = 5 - 1
+    ver.add(end); // начальный элемент - конечная вершина
+    int k = 1; // индекс предыдущей вершины
+    int weight = minDistance[end]; // вес конечной вершины
+
+    while (end != beginIndex) // пока не дошли до начальной вершины
+    {
+      for (int i = 0; i < graphDest.length; i++) // просматриваем все вершины
+        if (graphDest[i][end] != 0) // если связь есть
+        {
+          int temp = weight -
+              graphDest[i][end]; // определяем вес пути из предыдущей вершины
+          if (temp == minDistance[i]) // если вес совпал с рассчитанным
+          {
+            // значит из этой вершины и был переход
+            weight = temp; // сохраняем новый вес
+            end = i; // сохраняем предыдущую вершину
+            ver.add(i); // и записываем ее в массив
+            k++;
+          }
+        }
+    }
+
+    var path = ver[0] == endNode.id ? ver.reversed : ver;
+    var pathStr = "";
+    for (var nodePath in path) {
+      var node = graph[nodePath];
+      pathStr += nodePath == path.first ? "${node.id}" : " -> ${node.id}";
+      _printSubs("Кратчайший путь лежит через ${node.id}");
+      _changeNodeState(node, ObjectState.select);
+      await Future.delayed(const Duration(milliseconds: 1000));
+    }
+
+    _printSubs("Кратчайший путь лежит через $pathStr");
     _changeAllNode(ObjectState.idle);
     _changeToken(false);
   }
@@ -508,7 +595,7 @@ class _GraphWidget extends State<GraphWidget> {
             openSubtitles: () => _openSubtitles(),
             saveFile: () => _saveFile(),
             uploadFile: () => _uploadFile(),
-            minWay: () => _selectNode(_calculateMinWay),
+            minWay: () => _selectNode(/*_calculateMinWay*/ _dijkstra),
             addEdge: () => _selectNode(_addEdge),
           ),
         ),
