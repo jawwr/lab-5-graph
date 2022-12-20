@@ -406,7 +406,7 @@ class _GraphWidget extends State<GraphWidget> {
       graph: graphDest,
     );
 
-    await _showMinPath(ver, endNode.id);
+    await _showMinPath(ver, endNode.id, endNode.id);
 
     _changeAllNode(ObjectState.idle);
     _changeToken(false);
@@ -442,7 +442,7 @@ class _GraphWidget extends State<GraphWidget> {
           maxIndex = i;
         }
       }
-      // Добавляем найденный минимальный вес
+      // Добавляем найденный максимальный вес
       // к текущему весу вершины
       // и сравниваем с текущим минимальным весом вершины
       if (maxIndex != -1) {
@@ -468,24 +468,24 @@ class _GraphWidget extends State<GraphWidget> {
       graph: graphDest,
     );
 
-    await _showMinPath(ver, endNode.id);
+    await _showMinPath(ver, endNode.id, maxDistance[endNode.id]);
 
     _changeAllNode(ObjectState.idle);
     _changeToken(false);
   }
 
-  _showMinPath(List<int> ver, int endNodeId) async {
+  _showMinPath(List<int> ver, int endNodeId, int result) async {
     var path = ver[0] == endNodeId ? ver.reversed : ver;
     var pathStr = "";
     for (var nodePath in path) {
       var node = graph[nodePath];
-      pathStr += nodePath == path.first ? "${node.id}" : " -> ${node.id}";
-      _printSubs("Кратчайший путь лежит через ${node.id}");
+      pathStr += nodePath == path.first ? "${node.id}" : " <-> ${node.id}";
+      _printSubs("Наибольший путь лежит через ${node.id}");
       _changeNodeState(node, ObjectState.select);
       await Future.delayed(const Duration(milliseconds: 700));
     }
 
-    _printSubs("Кратчайший путь лежит через $pathStr");
+    _printSubs("Наибольший путь лежит через $pathStr, равен $result");
   }
 
   List<int> _findPath(
@@ -504,7 +504,8 @@ class _GraphWidget extends State<GraphWidget> {
       for (int i = 0; i < graph.length; i++) // просматриваем все вершины
         if (graph[i][end] != 0 && graph[i][end] != -_maxInt) // если связь есть
         {
-          int temp = weight - graph[i][end]; // определяем вес пути из предыдущей вершины
+          int temp = weight -
+              graph[i][end]; // определяем вес пути из предыдущей вершины
           if (temp == minDistance[i]) // если вес совпал с рассчитанным
           {
             // значит из этой вершины и был переход
@@ -541,7 +542,6 @@ class _GraphWidget extends State<GraphWidget> {
           graphEdges[i].add(
               nodes.where((element) => element.to.id == j).first.value as int);
         } else {
-          // graphEdges[i].add(isMax ? -_maxInt : _maxInt);
           var temp = isMax ? -_maxInt : _maxInt;
           graphEdges[i].add(temp);
         }
@@ -677,8 +677,8 @@ class _GraphWidget extends State<GraphWidget> {
             openSubtitles: () => _openSubtitles(),
             saveFile: () => _saveFile(),
             uploadFile: () => _uploadFile(),
-            minWay: () => _selectNode(/*_dijkstra*/ _findMaxStream),
-            //TODO доделать отдельную кнопку
+            minWay: () => _selectNode(_dijkstra),
+            maxWay: () => _selectNode(_findMaxStream),
             addEdge: () => _selectNode(_addEdge),
           ),
         ),

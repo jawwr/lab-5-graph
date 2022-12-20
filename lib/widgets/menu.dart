@@ -9,6 +9,7 @@ class Menu extends StatefulWidget {
   final Function() openSubtitles;
   final Function() minWay;
   final Function() addEdge;
+  final Function() maxWay;
 
   const Menu(
       {Key? key,
@@ -18,7 +19,8 @@ class Menu extends StatefulWidget {
       required this.uploadFile,
       required this.openSubtitles,
       required this.minWay,
-      required this.addEdge})
+      required this.addEdge,
+      required this.maxWay})
       : super(key: key);
 
   @override
@@ -29,7 +31,7 @@ class _Menu extends State<Menu> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 600,
+      height: 700,
       child: Column(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -45,6 +47,10 @@ class _Menu extends State<Menu> {
           _MenuIcon(
             func: widget.breadthSearch,
             icon: Icons.swap_horiz,
+          ),
+          _MenuIcon(
+            func: widget.maxWay,
+            icon: Icons.map_outlined,
           ),
           _MenuIcon(
             func: widget.minWay,
