@@ -162,7 +162,7 @@ class Edge<num> {
   static const int maxValue = 10000;
   late final Node<num> from;
   late final Node<num> to;
-  late final num value;
+  late num value;
 
   @override
   int get hashCode => to.hashCode;

@@ -489,12 +489,21 @@ class _GraphWidget extends State<GraphWidget> {
   _fordFulkersonAlgorithm(Node<num> startNode, Node<num> endNode) async {
     _changeAllNode(ObjectState.idle);
     List<List<int>> graphDest = _getEdges(isMax: true);
+    var edges = List.of(_edges);
     _changeToken(true);
+    List<Tuple<Tuple<int, int>, int>> newEdgesList = [];
 
-    var path = await _maxFlow(graphDest, 0, 4);
+    for (int i = 0; i < graphDest.length; i++) {
+      for (int j = 0; j < graphDest.length; j++) {
+        newEdgesList.add(Tuple(Tuple(i, j), 0));
+      }
+    }
+
+    var path =
+        await _maxFlow(graphDest, startNode.id, endNode.id, newEdgesList);
 
     _printSubs(
-        "Максимальное количество потока, которое можно пустить через ${startNode.id} и ${endNode.id} равно $path");
+        "Максимальное количество потока, которое можно пустить из ${startNode.id} в ${endNode.id} равно $path");
     await Future.delayed(const Duration(milliseconds: 3000));
 
     _changeAllNode(ObjectState.idle);
@@ -502,14 +511,15 @@ class _GraphWidget extends State<GraphWidget> {
     _printSubs("");
   }
 
-  Future<int> _maxFlow(List<List<int>> cap, int s, int t) async {
+  Future<int> _maxFlow(List<List<int>> cap, int s, int t,
+      List<Tuple<Tuple<int, int>, int>> edgesList) async {
     for (int flow = 0;;) {
       List<bool> visited = [];
       for (int i = 0; i < cap.length; i++) {
         visited.add(false);
       }
       int df = 0;
-      await _findPathFordFulkerson(cap, visited, s, t, _maxInt)
+      await _findPathFordFulkerson(cap, visited, s, t, _maxInt, edgesList)
           .then((value) => df = value);
       if (df == 0) {
         return flow;
@@ -519,33 +529,84 @@ class _GraphWidget extends State<GraphWidget> {
   }
 
   Future<int> _findPathFordFulkerson(
-      List<List<int>> cap, List<bool> vis, int u, int t, int f) async {
-    if (u == t) {
+      List<List<int>> graphEdges,
+      List<bool> visited,
+      int start,
+      int end,
+      int capacity,
+      List<Tuple<Tuple<int, int>, int>> edgesList) async {
+    if (start == end) {
       _printSubs(
-          "Нашли увеличивающий путь, вдоль которого можно пустить $f потока");
-      await Future.delayed(const Duration(milliseconds: 1000));
-      return f;
+          "Нашли увеличивающий путь, вдоль которого можно пустить $capacity потока");
+      await Future.delayed(const Duration(milliseconds: 1500));
+      return capacity;
     }
-    _changeNodeState(graph[u], ObjectState.passed);
-    await Future.delayed(const Duration(milliseconds: 1000));
-    vis[u] = true;
-    for (int v = 0; v < vis.length; v++)
-      if (!vis[v] && cap[u][v] > 0) {
+    _changeNodeState(graph[start], ObjectState.passed);
+    _printSubs("Проверка путей через $start");
+    await Future.delayed(const Duration(milliseconds: 1500));
+    visited[start] = true;
+    for (int v = 0; v < visited.length; v++) {
+      _changeNodeState(graph[start], ObjectState.idle);
+      if (!visited[v] && graphEdges[start][v] > 0) {
         int df = 0;
-        await _findPathFordFulkerson(cap, vis, v, t, min(f, cap[u][v]))
+        await _findPathFordFulkerson(graphEdges, visited, v, end,
+                min(capacity, graphEdges[start][v]), edgesList)
             .then((value) => df = value);
-        _printSubs("Через $u и $t можно пустить $df еще потока");
-        await Future.delayed(const Duration(milliseconds: 1000));
+
+        _printSubs("Через $start и $v можно пустить еще $df");
+        await Future.delayed(const Duration(milliseconds: 1500));
         if (df > 0) {
-          cap[u][v] -= df;
-          cap[v][u] += df;
+          _printSubs(
+              "Через $start и $end можно пустить еще, добавляем $df к потоку");
+          _changeNodeState(graph[start], ObjectState.select);
+          _changeNodeState(graph[v], ObjectState.select);
+          await Future.delayed(const Duration(milliseconds: 1500));
+
+          var value = edgesList
+              .where((x) => x.item1.item1 == start && x.item1.item2 == v)
+              .first;
+          value.item2 += df;
+
+          _changeEdges(value);
+
+          graphEdges[start][v] -= df;
+          graphEdges[v][start] += df;
+
+          _changeNodeState(graph[start], ObjectState.idle);
+          _changeNodeState(graph[v], ObjectState.idle);
           return df;
         }
       }
-    _printSubs("Из $u в $t больше не пустить еще");
-    await Future.delayed(const Duration(milliseconds: 1000));
+    }
+    _printSubs("Из $start в $end больше не пустить еще");
+    _changeNodeState(graph[start], ObjectState.idle);
+    await Future.delayed(const Duration(milliseconds: 1500));
 
     return 0;
+  }
+
+  _changeEdges(Tuple<Tuple<int, int>, int> value) {
+    if (!_edges.any((element) =>
+        element.edge.from.id == value.item1.item1 &&
+            element.edge.to.id == value.item1.item2 ||
+        element.edge.from.id == value.item1.item2 &&
+            element.edge.to.id == value.item1.item1)) {
+      return;
+    }
+    setState(() {
+      var edge = _edges
+          .where((element) =>
+              element.edge.from.id == value.item1.item1 &&
+                  element.edge.to.id == value.item1.item2 ||
+              element.edge.from.id == value.item1.item2 &&
+                  element.edge.to.id == value.item1.item1)
+          .first;
+      
+      _edges.remove(edge);
+      edge.edge.value = value.item2;
+
+      _edges.add(edge);
+    });
   }
 
   _showMinPath(List<int> ver, int endNodeId, int result) async {
