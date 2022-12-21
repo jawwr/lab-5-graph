@@ -1,1 +1,91 @@
-{"nodes":[{"id":0,"xCord":308,"yCord":239},{"id":1,"xCord":820,"yCord":365},{"id":2,"xCord":647,"yCord":852},{"id":3,"xCord":533,"yCord":592},{"id":4,"xCord":289,"yCord":576},{"id":5,"xCord":95,"yCord":450},{"id":6,"xCord":150,"yCord":824}],"edges":[{"idFrom":1,"idTo":0,"value":4},{"idFrom":2,"idTo":1,"value":6},{"idFrom":3,"idTo":1,"value":8},{"idFrom":4,"idTo":2,"value":3},{"idFrom":4,"idTo":0,"value":9},{"idFrom":4,"idTo":3,"value":4},{"idFrom":5,"idTo":0,"value":2},{"idFrom":5,"idTo":4,"value":1},{"idFrom":6,"idTo":4,"value":3},{"idFrom":6,"idTo":5,"value":1}]}
+{
+  "nodes": [
+    {
+      "id": 0,
+      "xCord": 308,
+      "yCord": 239
+    },
+    {
+      "id": 1,
+      "xCord": 820,
+      "yCord": 365
+    },
+    {
+      "id": 2,
+      "xCord": 647,
+      "yCord": 652
+    },
+    {
+      "id": 3,
+      "xCord": 533,
+      "yCord": 592
+    },
+    {
+      "id": 4,
+      "xCord": 289,
+      "yCord": 576
+    },
+    {
+      "id": 5,
+      "xCord": 95,
+      "yCord": 450
+    },
+    {
+      "id": 6,
+      "xCord": 150,
+      "yCord": 624
+    }
+  ],
+  "edges": [
+    {
+      "idFrom": 1,
+      "idTo": 0,
+      "value": 4
+    },
+    {
+      "idFrom": 2,
+      "idTo": 1,
+      "value": 6
+    },
+    {
+      "idFrom": 3,
+      "idTo": 1,
+      "value": 8
+    },
+    {
+      "idFrom": 4,
+      "idTo": 2,
+      "value": 3
+    },
+    {
+      "idFrom": 4,
+      "idTo": 0,
+      "value": 9
+    },
+    {
+      "idFrom": 4,
+      "idTo": 3,
+      "value": 4
+    },
+    {
+      "idFrom": 5,
+      "idTo": 0,
+      "value": 2
+    },
+    {
+      "idFrom": 5,
+      "idTo": 4,
+      "value": 1
+    },
+    {
+      "idFrom": 6,
+      "idTo": 4,
+      "value": 3
+    },
+    {
+      "idFrom": 6,
+      "idTo": 5,
+      "value": 1
+    }
+  ]
+}

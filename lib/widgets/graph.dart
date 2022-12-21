@@ -222,11 +222,14 @@ class _GraphWidget extends State<GraphWidget> {
     stack.addLast(startNode);
     while (stack.isNotEmpty) {
       var node = stack.removeLast();
+      _printSubs("Из стэка достали: ${_toString(stack)}");
+      await Future.delayed(const Duration(milliseconds: 500));
       if (!visited.contains(node)) {
         visited.add(node);
         _changeNodeState(node, ObjectState.passed);
         _printSubs("Узел номер ${node.id}");
         path.add(node);
+        _printSubs("Конечный путь: ${_toString(path)}");
         await Future.delayed(const Duration(milliseconds: 500));
         _changeNodeState(node, ObjectState.passed);
         await Future.delayed(const Duration(milliseconds: 1000));
@@ -236,11 +239,12 @@ class _GraphWidget extends State<GraphWidget> {
         _printSubs("В стэке: ${_toString(stack)}");
         await Future.delayed(const Duration(milliseconds: 750));
       } else {
+        _printSubs("");
         await Future.delayed(const Duration(milliseconds: 500));
       }
     }
     _printSubs("Конечный путь: ${_toString(path)}");
-    await Future.delayed(const Duration(milliseconds: 1000));
+    await Future.delayed(const Duration(milliseconds: 1500));
     _printSubs("");
     _changeAllNode(ObjectState.idle);
     _changeToken(false);
@@ -254,11 +258,14 @@ class _GraphWidget extends State<GraphWidget> {
     queue.add(startNode);
     while (queue.isNotEmpty) {
       var node = queue.removeFirst();
+      _printSubs("Из очереди достали: ${node.id} В очереди: ${_toString(queue)}");
+      await Future.delayed(const Duration(milliseconds: 1500));
       if (!visited.contains(node)) {
         visited.add(node);
         _changeNodeState(node, ObjectState.passed);
         _printSubs("Узел номер ${node.id}");
         path.add(node);
+        _printSubs("Конечный путь: ${_toString(path)}");
         await Future.delayed(const Duration(milliseconds: 500));
         _changeNodeState(node, ObjectState.passed);
         await Future.delayed(const Duration(milliseconds: 1000));
@@ -268,11 +275,12 @@ class _GraphWidget extends State<GraphWidget> {
         _printSubs("В очереди: ${_toString(queue)}");
         await Future.delayed(const Duration(milliseconds: 750));
       } else {
+        _printSubs("");
         await Future.delayed(const Duration(milliseconds: 500));
       }
     }
     _printSubs("Конечный путь ${_toString(path)}");
-    await Future.delayed(const Duration(milliseconds: 1000));
+    await Future.delayed(const Duration(milliseconds: 1500));
     _printSubs("");
     _changeAllNode(ObjectState.idle);
     _changeToken(false);
@@ -592,7 +600,7 @@ class _GraphWidget extends State<GraphWidget> {
                 y = j;
               }
             }
-            await Future.delayed(const Duration(milliseconds: 700));
+            await Future.delayed(const Duration(milliseconds: 300));
             _changeNodeState(graph[i], ObjectState.idle);
             _changeNodeState(graph[j], ObjectState.idle);
           }
@@ -603,7 +611,7 @@ class _GraphWidget extends State<GraphWidget> {
       _changeNodeState(graph[y], ObjectState.select);
 
       _printSubs("Оптимальный вариант $x -> $y");
-      await Future.delayed(const Duration(milliseconds: 1500));
+      await Future.delayed(const Duration(milliseconds: 1000));
       var node1 = _nodes.where((element) => element.node == graph[x]).first;
       var node2 = _nodes.where((element) => element.node == graph[y]).first;
       tree.add(Tuple(node1, node2));
@@ -769,8 +777,9 @@ class _GraphWidget extends State<GraphWidget> {
         GestureDetector(
           onTapDown: (TapDownDetails details) => _onTapDown(context, details),
         ),
-        ..._nodes,
+
         ..._edges,
+        ..._nodes,
         Positioned(
           bottom: 25,
           right: 25,
