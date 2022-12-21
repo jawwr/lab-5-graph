@@ -16,6 +16,7 @@ import 'package:lab_5/service/converter.dart';
 import 'package:lab_5/widgets/subtitle.dart';
 import 'package:toast/toast.dart';
 
+import '../models/flow_edge.dart';
 import '../models/node.dart';
 import '../models/states.dart';
 import '../service/graph_logic.dart';
@@ -258,7 +259,8 @@ class _GraphWidget extends State<GraphWidget> {
     queue.add(startNode);
     while (queue.isNotEmpty) {
       var node = queue.removeFirst();
-      _printSubs("Из очереди достали: ${node.id} В очереди: ${_toString(queue)}");
+      _printSubs(
+          "Из очереди достали: ${node.id} В очереди: ${_toString(queue)}");
       await Future.delayed(const Duration(milliseconds: 1500));
       if (!visited.contains(node)) {
         visited.add(node);
@@ -484,6 +486,68 @@ class _GraphWidget extends State<GraphWidget> {
     _printSubs("");
   }
 
+  _fordFulkersonAlgorithm(Node<num> startNode, Node<num> endNode) async {
+    _changeAllNode(ObjectState.idle);
+    List<List<int>> graphDest = _getEdges(isMax: true);
+    _changeToken(true);
+
+    var path = await _maxFlow(graphDest, 0, 4);
+
+    _printSubs(
+        "Максимальное количество потока, которое можно пустить через ${startNode.id} и ${endNode.id} равно $path");
+    await Future.delayed(const Duration(milliseconds: 3000));
+
+    _changeAllNode(ObjectState.idle);
+    _changeToken(false);
+    _printSubs("");
+  }
+
+  Future<int> _maxFlow(List<List<int>> cap, int s, int t) async {
+    for (int flow = 0;;) {
+      List<bool> visited = [];
+      for (int i = 0; i < cap.length; i++) {
+        visited.add(false);
+      }
+      int df = 0;
+      await _findPathFordFulkerson(cap, visited, s, t, _maxInt)
+          .then((value) => df = value);
+      if (df == 0) {
+        return flow;
+      }
+      flow += df;
+    }
+  }
+
+  Future<int> _findPathFordFulkerson(
+      List<List<int>> cap, List<bool> vis, int u, int t, int f) async {
+    if (u == t) {
+      _printSubs(
+          "Нашли увеличивающий путь, вдоль которого можно пустить $f потока");
+      await Future.delayed(const Duration(milliseconds: 1000));
+      return f;
+    }
+    _changeNodeState(graph[u], ObjectState.passed);
+    await Future.delayed(const Duration(milliseconds: 1000));
+    vis[u] = true;
+    for (int v = 0; v < vis.length; v++)
+      if (!vis[v] && cap[u][v] > 0) {
+        int df = 0;
+        await _findPathFordFulkerson(cap, vis, v, t, min(f, cap[u][v]))
+            .then((value) => df = value);
+        _printSubs("Через $u и $t можно пустить $df еще потока");
+        await Future.delayed(const Duration(milliseconds: 1000));
+        if (df > 0) {
+          cap[u][v] -= df;
+          cap[v][u] += df;
+          return df;
+        }
+      }
+    _printSubs("Из $u в $t больше не пустить еще");
+    await Future.delayed(const Duration(milliseconds: 1000));
+
+    return 0;
+  }
+
   _showMinPath(List<int> ver, int endNodeId, int result) async {
     var path = ver[0] == endNodeId ? ver.reversed : ver;
     var pathStr = "";
@@ -551,7 +615,7 @@ class _GraphWidget extends State<GraphWidget> {
           graphEdges[i].add(
               nodes.where((element) => element.to.id == j).first.value as int);
         } else {
-          var temp = isMax ? -_maxInt : _maxInt;
+          var temp = isMax ? /*-_maxInt*/ 0 : _maxInt;
           graphEdges[i].add(temp);
         }
       }
@@ -777,7 +841,6 @@ class _GraphWidget extends State<GraphWidget> {
         GestureDetector(
           onTapDown: (TapDownDetails details) => _onTapDown(context, details),
         ),
-
         ..._edges,
         ..._nodes,
         Positioned(
@@ -790,7 +853,7 @@ class _GraphWidget extends State<GraphWidget> {
             saveFile: () => _saveFile(),
             uploadFile: () => _uploadFile(),
             minWay: () => _selectNode(_dijkstra),
-            maxWay: () => _selectNode(_findMaxStream),
+            maxWay: () => _selectNode(_fordFulkersonAlgorithm),
             treeAlg: () => _graphBypass(_primsAlgorithm),
             addEdge: () => _selectNode(_addEdge),
           ),
