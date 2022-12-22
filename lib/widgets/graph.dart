@@ -40,7 +40,7 @@ class _GraphWidget extends State<GraphWidget> {
   bool _isRun = false;
   bool _needSubtitles = false;
   Map<Node<num>, Point> map = {};
-  List<String> _logList = List.generate(100, (index) => "$index");
+  List<String> _logList = [];
 
   _onTapDown(BuildContext context, TapDownDetails details) {
     final RenderBox? box = context.findRenderObject() as RenderBox?;
@@ -198,6 +198,9 @@ class _GraphWidget extends State<GraphWidget> {
 
   _printSubs(text) {
     setState(() {
+      if (text != "") {
+        _logList.add("${_logList.length + 1}) $text");
+      }
       _subtitles = text;
     });
   }
@@ -216,7 +219,14 @@ class _GraphWidget extends State<GraphWidget> {
     });
   }
 
+  _clearLogs() {
+    setState(() {
+      _logList.clear();
+    });
+  }
+
   _depthSearch(Node<num> startNode) async {
+    _clearLogs();
     List<Node<num>> path = [];
     _changeToken(true);
     var visited = HashSet<Node<num>>();
@@ -253,6 +263,7 @@ class _GraphWidget extends State<GraphWidget> {
   }
 
   _breadthSearch(Node<num> startNode) async {
+    _clearLogs();
     List<Node<num>> path = [];
     _changeToken(true);
     var visited = HashSet<Node<num>>();
@@ -362,6 +373,7 @@ class _GraphWidget extends State<GraphWidget> {
   }
 
   _dijkstra(Node<num> startNode, Node<num> endNode) async {
+    _clearLogs();
     _changeAllNode(ObjectState.idle);
     List<int> minDistance = [];
     List<int> visited = [];
@@ -488,11 +500,20 @@ class _GraphWidget extends State<GraphWidget> {
   }
 
   _fordFulkersonAlgorithm(Node<num> startNode, Node<num> endNode) async {
+    _clearLogs();
     _changeAllNode(ObjectState.idle);
     List<List<int>> graphDest = _getEdges(isMax: true);
-    var edges = List.of(_edges);
+    var edges = List<DistanceLineWidget>.of(_edges);
     _changeToken(true);
     List<Tuple<Tuple<int, int>, int>> newEdgesList = [];
+
+    for (int i = 0; i < edges.length; i++) {
+      var edge = edges[i];
+      var edgeGraph = edge.edge;
+      var newEdge = Edge(edgeGraph.from, edgeGraph.to, edgeGraph.value);
+      edges[i] = DistanceLineWidget(
+          edge: newEdge, graph: graph, to: edge.to, from: edge.from);
+    }
 
     for (int i = 0; i < graphDest.length; i++) {
       for (int j = 0; j < graphDest.length; j++) {
@@ -505,7 +526,12 @@ class _GraphWidget extends State<GraphWidget> {
 
     _printSubs(
         "Максимальное количество потока, которое можно пустить из ${startNode.id} в ${endNode.id} равно $path");
-    await Future.delayed(const Duration(milliseconds: 3000));
+    await Future.delayed(const Duration(milliseconds: 5000));
+
+    setState(() {
+      _edges.clear();
+      _edges = edges;
+    });
 
     _changeAllNode(ObjectState.idle);
     _changeToken(false);
@@ -554,7 +580,7 @@ class _GraphWidget extends State<GraphWidget> {
                 min(capacity, graphEdges[start][v]), edgesList)
             .then((value) => df = value);
 
-        _printSubs("Через $start и $v можно пустить еще $df");
+        _printSubs("Через $start и $v можно пустить $df");
         await Future.delayed(const Duration(milliseconds: 1500));
         if (df > 0) {
           _printSubs(
@@ -568,6 +594,9 @@ class _GraphWidget extends State<GraphWidget> {
               .first;
           value.item2 += df;
 
+          _printSubs(
+              "Количество потока из $start в $v теперь равна ${value.item2}");
+
           _changeEdges(value);
 
           graphEdges[start][v] -= df;
@@ -579,7 +608,7 @@ class _GraphWidget extends State<GraphWidget> {
         }
       }
     }
-    _printSubs("Из $start в $end больше не пустить еще");
+    _printSubs("Из $start в $end больше не пустить");
     _changeNodeState(graph[start], ObjectState.idle);
     await Future.delayed(const Duration(milliseconds: 1500));
 
@@ -677,7 +706,7 @@ class _GraphWidget extends State<GraphWidget> {
           graphEdges[i].add(
               nodes.where((element) => element.to.id == j).first.value as int);
         } else {
-          var temp = isMax ? /*-_maxInt*/ 0 : _maxInt;
+          var temp = isMax ? -_maxInt /*0*/ : _maxInt; //todo
           graphEdges[i].add(temp);
         }
       }
@@ -687,6 +716,7 @@ class _GraphWidget extends State<GraphWidget> {
   }
 
   _primsAlgorithm(Node<num> node) async {
+    _clearLogs();
     List<List<int>> graphDest = _getEdges();
     List<Tuple<NodeWidget, NodeWidget>> tree = [];
     var edges = List.of(_edges);
@@ -905,41 +935,41 @@ class _GraphWidget extends State<GraphWidget> {
         ),
         ..._edges,
         ..._nodes,
-        Container(
-          width: 500,
-          height: 500,
-          child: Positioned(
-              bottom: 100,
-              left: 100,
-              child: Column(
-                children: [
-                  ListView.builder(
-                    itemBuilder: (context, index) => Container(
-                      width: 100,
-                      height: 25,
-                      child: Text(
-                        _logList[index],
-                        style: TextStyle(color: Colors.black, fontSize: 20),
-                      ),
-                    ),
-                    itemCount: _logList.length,
-                  ),
-                ],
-              )),
-        ),
         Positioned(
           bottom: 25,
           right: 25,
-          child: Menu(
-            depthSearch: () => _graphBypass(_depthSearch),
-            breadthSearch: () => _graphBypass(_breadthSearch),
-            openSubtitles: () => _openSubtitles(),
-            saveFile: () => _saveFile(),
-            uploadFile: () => _uploadFile(),
-            minWay: () => _selectNode(_dijkstra),
-            maxWay: () => _selectNode(_fordFulkersonAlgorithm),
-            treeAlg: () => _graphBypass(_primsAlgorithm),
-            addEdge: () => _selectNode(_addEdge),
+          child: Row(
+            children: [
+              Container(
+                width: 400,
+                height: 700,
+                child: ListView.builder(
+                  itemBuilder: (context, index) => Container(
+                    margin: const EdgeInsets.symmetric(vertical: 5),
+                    child: Text(
+                      _logList[index],
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                  ),
+                  itemCount: _logList.length,
+                ),
+              ),
+              Menu(
+                depthSearch: () => _graphBypass(_depthSearch),
+                breadthSearch: () => _graphBypass(_breadthSearch),
+                openSubtitles: () => _openSubtitles(),
+                saveFile: () => _saveFile(),
+                uploadFile: () => _uploadFile(),
+                minWay: () => _selectNode(_dijkstra),
+                maxWay: () => _selectNode(_fordFulkersonAlgorithm),
+                treeAlg: () => _graphBypass(_primsAlgorithm),
+                addEdge: () => _selectNode(_addEdge),
+              ),
+            ],
           ),
         ),
       ],
