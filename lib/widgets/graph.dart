@@ -395,12 +395,20 @@ class _GraphWidget extends State<GraphWidget> {
     do {
       minIndex = 10000;
       min = 10000;
+      _printSubs("Поиск по еще не посещенным вершинам");
+      await Future.delayed(const Duration(milliseconds: 1000));
       for (int i = 0; i < graphDest.length; i++) {
+        _printSubs(
+            "Узел номер ${graph[i].id} ${visited[i] == 1 ? "еще не обошли" : "уже обошли"}${visited[i] == 1 ? ", вес ребра до нее равен ${minDistance[i] == 10000 ? "максимальному значению" : minDistance[i]}" : ""}");
+        await Future.delayed(const Duration(milliseconds: 1000));
         // Если вершину ещё не обошли и вес меньше min
         if ((visited[i] == 1) && (minDistance[i] < min)) {
           // Переприсваиваем значения
           min = minDistance[i];
           minIndex = i;
+          _printSubs("Узел номер ${graph[minIndex].id}");
+          _changeNodeState(graph[minIndex], ObjectState.select);
+          await Future.delayed(const Duration(milliseconds: 1000));
         }
       }
       // Добавляем найденный минимальный вес
@@ -409,16 +417,21 @@ class _GraphWidget extends State<GraphWidget> {
       if (minIndex != 10000) {
         for (int i = 0; i < graphDest.length; i++) {
           if (graphDest[minIndex][i] > 0) {
+            _printSubs(
+                "Расстояние от узла $minIndex до ${i} ${graphDest[minIndex][i] == _maxInt ? "пока что не существует" : "равно ${graphDest[minIndex][i]}"}");
+            await Future.delayed(const Duration(milliseconds: 1000));
             temp = min + graphDest[minIndex][i];
             if (temp < minDistance[i]) {
+              _printSubs(
+                  "Тепереь кратчайшее расстояние от узла $beginIndex до ${i} равно ${temp}");
               minDistance[i] = temp;
+              await Future.delayed(const Duration(milliseconds: 1000));
             }
           }
         }
         visited[minIndex] = 0;
-        _printSubs("Узел номер ${graph[minIndex].id}");
-        _changeNodeState(graph[minIndex], ObjectState.passed);
-        await Future.delayed(const Duration(milliseconds: 500));
+        // _printSubs("Узел номер ${graph[minIndex].id}");
+        await Future.delayed(const Duration(milliseconds: 1000));
       }
     } while (minIndex < 10000);
 
@@ -429,7 +442,10 @@ class _GraphWidget extends State<GraphWidget> {
       graph: graphDest,
     );
 
-    await _showMinPath(ver, endNode.id, endNode.id);
+    _changeAllNode(ObjectState.idle);
+    _printSubs("Поиск пути от $beginIndex до ${endNode.id}");
+    await Future.delayed(const Duration(milliseconds: 1000));
+    await _showMinPath(ver, endNode.id, minDistance[endNode.id]);
 
     _changeAllNode(ObjectState.idle);
     _changeToken(false);
@@ -644,7 +660,7 @@ class _GraphWidget extends State<GraphWidget> {
     var pathStr = "";
     for (var nodePath in path) {
       var node = graph[nodePath];
-      pathStr += nodePath == path.first ? "${node.id}" : " <-> ${node.id}";
+      pathStr += nodePath == path.first ? "${node.id}" : " - ${node.id}";
       _printSubs("Путь лежит через ${node.id}");
       _changeNodeState(node, ObjectState.select);
       await Future.delayed(const Duration(milliseconds: 700));
@@ -706,7 +722,7 @@ class _GraphWidget extends State<GraphWidget> {
           graphEdges[i].add(
               nodes.where((element) => element.to.id == j).first.value as int);
         } else {
-          var temp = isMax ? -_maxInt /*0*/ : _maxInt; //todo
+          var temp = isMax ? -_maxInt : _maxInt;
           graphEdges[i].add(temp);
         }
       }
