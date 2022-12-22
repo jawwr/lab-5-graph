@@ -735,6 +735,7 @@ class _GraphWidget extends State<GraphWidget> {
     _clearLogs();
     List<List<int>> graphDest = _getEdges();
     List<Tuple<NodeWidget, NodeWidget>> tree = [];
+    List<Node> treeNodes = [];
     var edges = List.of(_edges);
 
     _changeToken(true);
@@ -762,37 +763,63 @@ class _GraphWidget extends State<GraphWidget> {
             if (i == j) {
               continue;
             }
-            _printSubs("Проверка расстония $i -> $j");
-            _changeNodeState(graph[i], ObjectState.select);
-            _changeNodeState(graph[j], ObjectState.passed);
+            _printSubs("Проверка расстония между $i и $j");
+            await Future.delayed(const Duration(milliseconds: 1000));
+            // _changeNodeState(graph[i], ObjectState.select);
+            // _changeNodeState(graph[j], ObjectState.passed);
+            if (!treeNodes.contains(graph[j])) {
+              _changeNodeState(graph[j], ObjectState.passed);
+            }
+            if (treeNodes.contains(graph[j])) {
+              _printSubs("Вершина $j уже присутствует в остовном дереве");
+              await Future.delayed(const Duration(milliseconds: 1000));
+              continue;
+            }
+            _printSubs(
+                "Расстоние между $i и $j ${graphDest[i][j] != 0 && graphDest[i][j] != _maxInt ? "равно ${graphDest[i][j]}" : "напрямую не существует"}");
+            await Future.delayed(const Duration(milliseconds: 1000));
+
             if (!visited[j] && graphDest[i][j] != 0) {
               if (min > graphDest[i][j]) {
                 min = graphDest[i][j];
                 x = i;
                 y = j;
+                _printSubs("Расстоние между $i и $j становится минимальным");
+                await Future.delayed(const Duration(milliseconds: 1000));
+                // _printSubs("Расстоние между $i и $j является минимальным");
+                // await Future.delayed(const Duration(milliseconds: 1000));
               }
             }
-            await Future.delayed(const Duration(milliseconds: 300));
-            _changeNodeState(graph[i], ObjectState.idle);
-            _changeNodeState(graph[j], ObjectState.idle);
+            if (!treeNodes.contains(graph[j])) {
+              _changeNodeState(graph[j], ObjectState.idle);
+            }
           }
         }
       }
 
-      _changeNodeState(graph[x], ObjectState.select);
-      _changeNodeState(graph[y], ObjectState.select);
+      treeNodes.add(graph[x]);
+      treeNodes.add(graph[y]);
+
+      // _changeNodeState(graph[x], ObjectState.select);
+
 
       _printSubs("Оптимальный вариант $x -> $y");
       await Future.delayed(const Duration(milliseconds: 1000));
+      _changeNodeState(graph[y], ObjectState.select);
+      _printSubs("Добавляем $y к остовному дереву");
+      await Future.delayed(const Duration(milliseconds: 1000));
       var node1 = _nodes.where((element) => element.node == graph[x]).first;
       var node2 = _nodes.where((element) => element.node == graph[y]).first;
+
       tree.add(Tuple(node1, node2));
 
       debugPrint("$x - $y : ${graphDest[x][y]}");
       visited[y] = true;
 
-      _changeNodeState(graph[x], ObjectState.idle);
-      _changeNodeState(graph[y], ObjectState.idle);
+      if (!treeNodes.contains(graph[x])) {
+        _changeNodeState(graph[x], ObjectState.idle);
+      }
+      // _changeNodeState(graph[y], ObjectState.idle);
     }
     setState(() {
       _edges.clear();
@@ -960,6 +987,8 @@ class _GraphWidget extends State<GraphWidget> {
                 width: 400,
                 height: 700,
                 child: ListView.builder(
+                  physics: BouncingScrollPhysics(),
+                  dragStartBehavior: DragStartBehavior.down,
                   itemBuilder: (context, index) => Container(
                     margin: const EdgeInsets.symmetric(vertical: 5),
                     child: Text(
