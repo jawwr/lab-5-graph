@@ -11,12 +11,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:flutter/rendering.dart';
 import 'package:lab_5/DTO/graph_dto.dart';
 import 'package:lab_5/service/converter.dart';
 import 'package:lab_5/widgets/subtitle.dart';
 import 'package:toast/toast.dart';
 
-import '../models/flow_edge.dart';
 import '../models/node.dart';
 import '../models/states.dart';
 import '../service/graph_logic.dart';
@@ -40,6 +40,7 @@ class _GraphWidget extends State<GraphWidget> {
   bool _isRun = false;
   bool _needSubtitles = false;
   Map<Node<num>, Point> map = {};
+  List<String> _logList = List.generate(100, (index) => "$index");
 
   _onTapDown(BuildContext context, TapDownDetails details) {
     final RenderBox? box = context.findRenderObject() as RenderBox?;
@@ -557,7 +558,7 @@ class _GraphWidget extends State<GraphWidget> {
         await Future.delayed(const Duration(milliseconds: 1500));
         if (df > 0) {
           _printSubs(
-              "Через $start и $end можно пустить еще, добавляем $df к потоку");
+              "Через $start и $v можно пустить еще, добавляем $df к потоку");
           _changeNodeState(graph[start], ObjectState.select);
           _changeNodeState(graph[v], ObjectState.select);
           await Future.delayed(const Duration(milliseconds: 1500));
@@ -601,7 +602,7 @@ class _GraphWidget extends State<GraphWidget> {
               element.edge.from.id == value.item1.item2 &&
                   element.edge.to.id == value.item1.item1)
           .first;
-      
+
       _edges.remove(edge);
       edge.edge.value = value.item2;
 
@@ -904,6 +905,28 @@ class _GraphWidget extends State<GraphWidget> {
         ),
         ..._edges,
         ..._nodes,
+        Container(
+          width: 500,
+          height: 500,
+          child: Positioned(
+              bottom: 100,
+              left: 100,
+              child: Column(
+                children: [
+                  ListView.builder(
+                    itemBuilder: (context, index) => Container(
+                      width: 100,
+                      height: 25,
+                      child: Text(
+                        _logList[index],
+                        style: TextStyle(color: Colors.black, fontSize: 20),
+                      ),
+                    ),
+                    itemCount: _logList.length,
+                  ),
+                ],
+              )),
+        ),
         Positioned(
           bottom: 25,
           right: 25,
