@@ -61,12 +61,12 @@ class _EdgeWidget extends State<DistanceLineWidget> {
               ),
               child: Center(
                 child: Text(
-                  "${widget.edge.value}",
+                  widget.edge.value,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
-                    fontSize: 15,
+                    fontSize: 12,
                     decoration: TextDecoration.none,
                   ),
                 ),

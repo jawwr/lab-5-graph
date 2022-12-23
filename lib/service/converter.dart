@@ -73,7 +73,7 @@ GraphDTO convertGraphToDTO(Graph graph, Map<Node<num>, Point> nodePos) {
     edgesDTO.add(EdgeDTO(
       idFrom: edge.from.id,
       idTo: edge.to.id,
-      value: edge.value,
+      value: int.parse(edge.value),
     ));
   }
   dto.edges = edgesDTO;

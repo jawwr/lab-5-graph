@@ -520,8 +520,13 @@ class _GraphWidget extends State<GraphWidget> {
     _changeAllNode(ObjectState.idle);
     List<List<int>> graphDest = _getEdges(isMax: true);
     var edges = List<DistanceLineWidget>.of(_edges);
+    List<List<int>> maxLenEdges = [];
     _changeToken(true);
     List<Tuple<Tuple<int, int>, int>> newEdgesList = [];
+
+    for (var len in graphDest){
+      maxLenEdges.add(List.of(len));
+    }
 
     for (int i = 0; i < edges.length; i++) {
       var edge = edges[i];
@@ -538,7 +543,7 @@ class _GraphWidget extends State<GraphWidget> {
     }
 
     var path =
-        await _maxFlow(graphDest, startNode.id, endNode.id, newEdgesList);
+        await _maxFlow(graphDest, startNode.id, endNode.id, newEdgesList, maxLenEdges);
 
     _printSubs(
         "Максимальное количество потока, которое можно пустить из ${startNode.id} в ${endNode.id} равно $path");
@@ -555,14 +560,14 @@ class _GraphWidget extends State<GraphWidget> {
   }
 
   Future<int> _maxFlow(List<List<int>> cap, int s, int t,
-      List<Tuple<Tuple<int, int>, int>> edgesList) async {
+      List<Tuple<Tuple<int, int>, int>> edgesList, List<List<int>> maxLenEdge) async {
     for (int flow = 0;;) {
       List<bool> visited = [];
       for (int i = 0; i < cap.length; i++) {
         visited.add(false);
       }
       int df = 0;
-      await _findPathFordFulkerson(cap, visited, s, t, _maxInt, edgesList)
+      await _findPathFordFulkerson(cap, visited, s, t, _maxInt, edgesList, maxLenEdge)
           .then((value) => df = value);
       if (df == 0) {
         return flow;
@@ -577,7 +582,8 @@ class _GraphWidget extends State<GraphWidget> {
       int start,
       int end,
       int capacity,
-      List<Tuple<Tuple<int, int>, int>> edgesList) async {
+      List<Tuple<Tuple<int, int>, int>> edgesList,
+      List<List<int>> maxLenEdge) async {
     if (start == end) {
       _printSubs(
           "Нашли увеличивающий путь, вдоль которого можно пустить $capacity потока");
@@ -593,7 +599,7 @@ class _GraphWidget extends State<GraphWidget> {
       if (!visited[v] && graphEdges[start][v] > 0) {
         int df = 0;
         await _findPathFordFulkerson(graphEdges, visited, v, end,
-                min(capacity, graphEdges[start][v]), edgesList)
+                min(capacity, graphEdges[start][v]), edgesList, maxLenEdge)
             .then((value) => df = value);
 
         _printSubs("Через $start и $v можно пустить $df");
@@ -609,11 +615,13 @@ class _GraphWidget extends State<GraphWidget> {
               .where((x) => x.item1.item1 == start && x.item1.item2 == v)
               .first;
           value.item2 += df;
+          var maxValue = maxLenEdge[start][v];
 
           _printSubs(
               "Количество потока из $start в $v теперь равна ${value.item2}");
 
-          _changeEdges(value);
+          _changeEdges(value, maxValue.toString());
+          await Future.delayed(const Duration(milliseconds: 1500));
 
           graphEdges[start][v] -= df;
           graphEdges[v][start] += df;
@@ -631,7 +639,7 @@ class _GraphWidget extends State<GraphWidget> {
     return 0;
   }
 
-  _changeEdges(Tuple<Tuple<int, int>, int> value) {
+  _changeEdges(Tuple<Tuple<int, int>, int> value, String maxValue) {
     if (!_edges.any((element) =>
         element.edge.from.id == value.item1.item1 &&
             element.edge.to.id == value.item1.item2 ||
@@ -649,7 +657,7 @@ class _GraphWidget extends State<GraphWidget> {
           .first;
 
       _edges.remove(edge);
-      edge.edge.value = value.item2;
+      edge.edge.value = "${value.item2}/$maxValue";
 
       _edges.add(edge);
     });
@@ -719,8 +727,8 @@ class _GraphWidget extends State<GraphWidget> {
           }
         }
         if (isContains) {
-          graphEdges[i].add(
-              nodes.where((element) => element.to.id == j).first.value as int);
+          graphEdges[i].add(int.parse(
+              nodes.where((element) => element.to.id == j).first.value));
         } else {
           var temp = isMax ? -_maxInt : _maxInt;
           graphEdges[i].add(temp);
@@ -801,7 +809,6 @@ class _GraphWidget extends State<GraphWidget> {
       treeNodes.add(graph[y]);
 
       // _changeNodeState(graph[x], ObjectState.select);
-
 
       _printSubs("Оптимальный вариант $x -> $y");
       await Future.delayed(const Duration(milliseconds: 1000));

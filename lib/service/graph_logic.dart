@@ -126,7 +126,7 @@ class Node<num> {
   num? getValueLinkNode(Node<num> node) {
     var edge = incidentEdges.where((x) => x.isIncident(node));
     if (edge.isNotEmpty) {
-      return edge.first.value;
+      return int.parse(edge.first.value) as num;
     } else {
       return null;
     }
@@ -139,8 +139,8 @@ class Node<num> {
     if (!graph.nodes.contains(node1) || !graph.nodes.contains(node2)) {
       throw FormatException("incorect node");
     }
-    var edge1 = Edge<num>(node1, node2, value);
-    var edge2 = Edge<num>(node2, node1, value);
+    var edge1 = Edge<num>(node1, node2, value.toString());
+    var edge2 = Edge<num>(node2, node1, value.toString());
     return Tuple(edge1, edge2);
   }
 
@@ -162,13 +162,13 @@ class Edge<num> {
   static const int maxValue = 10000;
   late final Node<num> from;
   late final Node<num> to;
-  late num value;
+  late String value;
 
   @override
   int get hashCode => to.hashCode;
 
-  Edge(this.from, this.to, num value) {
-    if (value as int > maxValue) {
+  Edge(this.from, this.to, String value) {
+    if (int.parse(value) > maxValue) {
       throw Exception("Incorect value of Node");
     } else {
       this.value = value;
