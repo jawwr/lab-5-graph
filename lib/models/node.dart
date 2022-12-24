@@ -12,6 +12,7 @@ class NodeWidget extends ImplicitlyAnimatedWidget {
   final Graph<num> graph;
   final Function(Node<num>, Node<num>) addEdge;
   Point location;
+  int? distance = null;
 
   NodeWidget(
     this.location, {
@@ -56,11 +57,6 @@ class _NodeWidget extends AnimatedWidgetBaseState<NodeWidget> {
   _selectNode(Node<num> node) => {
         setState(() {
           if (_state == ObjectState.idle) {
-            // if (NodeWidget.selectedNodes.isNotEmpty) {
-            //   widget.addEdge.call(NodeWidget.selectedNodes.first, widget.node);
-            //   NodeWidget.selectedNodes.clear();
-            //   _state = ObjectState.idle;
-            // } else {
             _state = ObjectState.select;
             NodeWidget.selectedNodes.add(node);
             // }
@@ -99,27 +95,44 @@ class _NodeWidget extends AnimatedWidgetBaseState<NodeWidget> {
       left: widget.location.x - 20,
       width: 40,
       height: 40,
-      child: GestureDetector(
-        onPanUpdate: (details) => _moveNode(context, details),
-        onTap: () => _selectNode(widget.node),
-        onDoubleTap: () => _deleteNode(widget.node),
-        child: Container(
-          child: Center(
-              child: Text(
-            "${widget.node.id}",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 15,
-              decoration: TextDecoration.none,
+      child: Stack(
+        children: [
+          GestureDetector(
+            onPanUpdate: (details) => _moveNode(context, details),
+            onTap: () => _selectNode(widget.node),
+            onDoubleTap: () => _deleteNode(widget.node),
+            child: Container(
+              child: Center(
+                  child: Text(
+                "${widget.node.id}",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                  decoration: TextDecoration.none,
+                ),
+              )),
+              decoration: BoxDecoration(
+                color: _getColor(),
+                shape: BoxShape.circle,
+              ),
             ),
-          )),
-          decoration: BoxDecoration(
-            color: _getColor(),
-            shape: BoxShape.circle,
           ),
-        ),
+          Container(
+            margin: const EdgeInsets.only(left: 0, top: 0),
+            child: Text(
+              widget.distance != null ? "${widget.distance}" : "",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                decoration: TextDecoration.none,
+              ),
+            ),
+          )
+        ],
       ),
     );
   }

@@ -36,6 +36,7 @@ class _GraphWidget extends State<GraphWidget> {
   double posy = 0;
   String _subtitles = "";
   final List<NodeWidget> _nodes = [];
+  final List<NodeWidget> _additionalNodes = [];
   List<DistanceLineWidget> _edges = [];
   bool _isRun = false;
   bool _needSubtitles = false;
@@ -425,6 +426,15 @@ class _GraphWidget extends State<GraphWidget> {
               _printSubs(
                   "Тепереь кратчайшее расстояние от узла $beginIndex до ${i} равно ${temp}");
               minDistance[i] = temp;
+
+
+              var node = _nodes.where((element) => element.node == graph[i]).first;
+
+              setState(() {
+                node.distance = temp;
+                node.stateNow.changeState(node.stateNow.state);
+              });
+
               await Future.delayed(const Duration(milliseconds: 1000));
             }
           }
@@ -447,9 +457,18 @@ class _GraphWidget extends State<GraphWidget> {
     await Future.delayed(const Duration(milliseconds: 1000));
     await _showMinPath(ver, endNode.id, minDistance[endNode.id]);
 
+    _removeDistanceFromNodes();
     _changeAllNode(ObjectState.idle);
     _changeToken(false);
     _printSubs("");
+  }
+
+  _removeDistanceFromNodes(){
+    for(var node in _nodes) {
+      setState(() {
+        node.distance = null;
+      });
+    }
   }
 
   _findMaxStream(Node<num> startNode, Node<num> endNode) async {
@@ -985,6 +1004,7 @@ class _GraphWidget extends State<GraphWidget> {
         ),
         ..._edges,
         ..._nodes,
+        ..._additionalNodes,
         Positioned(
           bottom: 25,
           right: 25,
