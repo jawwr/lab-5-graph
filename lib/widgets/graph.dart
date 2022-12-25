@@ -792,8 +792,6 @@ class _GraphWidget extends State<GraphWidget> {
             }
             _printSubs("Проверка расстония между $i и $j");
             await Future.delayed(const Duration(milliseconds: 1000));
-            // _changeNodeState(graph[i], ObjectState.select);
-            // _changeNodeState(graph[j], ObjectState.passed);
             if (!treeNodes.contains(graph[j])) {
               _changeNodeState(graph[j], ObjectState.passed);
             }
@@ -813,8 +811,6 @@ class _GraphWidget extends State<GraphWidget> {
                 y = j;
                 _printSubs("Расстоние между $i и $j становится минимальным");
                 await Future.delayed(const Duration(milliseconds: 1000));
-                // _printSubs("Расстоние между $i и $j является минимальным");
-                // await Future.delayed(const Duration(milliseconds: 1000));
               }
             }
             if (!treeNodes.contains(graph[j])) {
@@ -826,8 +822,6 @@ class _GraphWidget extends State<GraphWidget> {
 
       treeNodes.add(graph[x]);
       treeNodes.add(graph[y]);
-
-      // _changeNodeState(graph[x], ObjectState.select);
 
       _printSubs("Оптимальный вариант $x -> $y");
       await Future.delayed(const Duration(milliseconds: 1000));
@@ -845,7 +839,6 @@ class _GraphWidget extends State<GraphWidget> {
       if (!treeNodes.contains(graph[x])) {
         _changeNodeState(graph[x], ObjectState.idle);
       }
-      // _changeNodeState(graph[y], ObjectState.idle);
     }
     setState(() {
       _edges.clear();
